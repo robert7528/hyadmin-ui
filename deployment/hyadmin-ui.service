@@ -1,0 +1,36 @@
+[Unit]
+Description=HySP Admin UI (Next.js)
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=root
+Group=root
+WorkingDirectory=/hysp/hyadmin-ui
+
+# Environment
+Environment="NODE_ENV=production"
+Environment="PORT=3000"
+Environment="HOSTNAME=127.0.0.1"
+EnvironmentFile=-/hysp/hyadmin-ui/.env.local
+
+# Run Next.js standalone server (no bun/node_modules needed at runtime)
+ExecStart=/usr/bin/node /hysp/hyadmin-ui/.next/standalone/server.js
+
+# Restart policy
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+# Security hardening
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target
