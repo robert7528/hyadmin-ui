@@ -1,0 +1,9 @@
+services:
+  ui:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: "http://hyadmin-api:8080"
+      NEXT_PUBLIC_TENANT_ID: "default"
+    restart: unless-stopped
