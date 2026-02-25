@@ -1,0 +1,30 @@
+# Podman Quadlet - HySP Admin UI
+#
+# 安裝方式：
+#   sudo cp hyadmin-ui.container /etc/containers/systemd/hyadmin-ui.container
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now hyadmin-ui
+#
+# 之後操作：
+#   sudo systemctl restart hyadmin-ui
+#   sudo systemctl status hyadmin-ui
+#   sudo journalctl -u hyadmin-ui -f
+
+[Unit]
+Description=HySP Admin UI (Next.js)
+After=network.target
+
+[Container]
+Image=localhost/hyadmin-ui:latest
+# 只對 localhost 開放，由 nginx 反向代理
+PublishPort=127.0.0.1:3000:3000
+LogDriver=journald
+
+[Service]
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Install]
+WantedBy=multi-user.target
