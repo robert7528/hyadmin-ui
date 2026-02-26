@@ -2,9 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Providers } from '@/components/providers'
-import { Header } from '@/components/layout/header'
-import { Sidebar } from '@/components/layout/sidebar'
-import { Footer } from '@/components/layout/footer'
+import { ShellWrapper } from '@/components/layout/shell-wrapper'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,16 +20,7 @@ export default function RootLayout({
     <html lang="zh-TW" className="light">
       <body className={inter.className}>
         <Providers>
-          <div className="flex h-screen flex-col">
-            <Header />
-            <div className="flex flex-1 overflow-hidden">
-              <Sidebar />
-              <main className="flex-1 overflow-auto p-6 bg-gray-50">
-                {children}
-              </main>
-            </div>
-            <Footer />
-          </div>
+          <ShellWrapper>{children}</ShellWrapper>
         </Providers>
       </body>
     </html>
