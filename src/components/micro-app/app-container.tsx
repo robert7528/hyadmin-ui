@@ -3,22 +3,6 @@
 import { useEffect, useRef } from 'react'
 import type { Module } from '@/types/module'
 
-// Declare micro-app custom element for TypeScript
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'micro-app': React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement> & {
-          name?: string
-          url?: string
-          baseroute?: string
-        },
-        HTMLElement
-      >
-    }
-  }
-}
-
 interface AppContainerProps {
   module: Module
 }

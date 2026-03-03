@@ -1,0 +1,16 @@
+import type { DetailedHTMLProps, HTMLAttributes } from 'react'
+
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'micro-app': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          name?: string
+          url?: string
+          baseroute?: string
+        },
+        HTMLElement
+      >
+    }
+  }
+}
