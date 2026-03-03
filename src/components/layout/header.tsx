@@ -13,7 +13,7 @@ import {
   DropdownMenu,
   DropdownItem,
 } from '@heroui/react'
-import { ChevronDown, LogOut } from 'lucide-react'
+import { ChevronDown, LayoutGrid, LogOut } from 'lucide-react'
 import { useModules } from '@/contexts/module-context'
 import { usePermission } from '@/contexts/permission-context'
 import { clearToken } from '@/lib/api'
@@ -75,8 +75,8 @@ export function Header() {
           <NavbarItem>
             <Dropdown>
               <DropdownTrigger>
-                <Button variant="light" size="sm" endContent={<ChevronDown size={14} />}>
-                  更多
+                <Button variant="light" size="sm" startContent={<LayoutGrid size={14} />} endContent={<ChevronDown size={14} />}>
+                  應用程式
                 </Button>
               </DropdownTrigger>
               <DropdownMenu aria-label="More modules">
