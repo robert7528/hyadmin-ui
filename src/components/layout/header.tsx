@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Navbar,
@@ -19,20 +19,70 @@ import { usePermission } from '@/contexts/permission-context'
 import { clearToken } from '@/lib/api'
 import { cn } from '@/lib/utils'
 
-/** Reserved width for the "應用程式" dropdown button (px) */
-const DROPDOWN_BUTTON_WIDTH = 130
-/** Gap between tab items (px) */
-const TAB_GAP = 4
+/** Approx width reserved for Brand + End section + padding */
+const RESERVED_WIDTH = 320
+/** Width of the "應用程式" dropdown button (px) */
+const DROPDOWN_WIDTH = 130
+/** Horizontal padding per tab (px-3 = 12px * 2) + gap */
+const TAB_PADDING = 28
+
+function useMaxVisibleTabs(modules: { display_name: string }[]) {
+  const [maxVisible, setMaxVisible] = useState(modules.length)
+  const canvasRef = useRef<CanvasRenderingContext2D | null>(null)
+
+  useEffect(() => {
+    if (modules.length === 0) return
+
+    // Measure tab text widths using Canvas (no DOM needed)
+    if (!canvasRef.current) {
+      const canvas = document.createElement('canvas')
+      canvasRef.current = canvas.getContext('2d')
+    }
+    const ctx = canvasRef.current
+    if (!ctx) return
+    ctx.font = '500 14px ui-sans-serif, system-ui, sans-serif'
+
+    const tabWidths = modules.map(
+      (m) => ctx.measureText(m.display_name).width + TAB_PADDING
+    )
+
+    const calc = () => {
+      const available = window.innerWidth - RESERVED_WIDTH
+
+      // Check if all tabs fit without dropdown
+      const totalWidth = tabWidths.reduce((a, b) => a + b, 0)
+      if (totalWidth <= available) {
+        setMaxVisible(modules.length)
+        return
+      }
+
+      // Reserve space for dropdown, fit as many as possible
+      const budget = available - DROPDOWN_WIDTH
+      let used = 0
+      let count = 0
+      for (const w of tabWidths) {
+        if (used + w > budget) break
+        used += w
+        count++
+      }
+      setMaxVisible(Math.max(count, 0))
+    }
+
+    calc()
+    window.addEventListener('resize', calc)
+    return () => window.removeEventListener('resize', calc)
+  }, [modules])
+
+  return maxVisible
+}
 
 export function Header() {
   const router = useRouter()
   const { modules, selectedModule, loadModules, selectModule } = useModules()
   const { loadPermissions } = usePermission()
   const [loaded, setLoaded] = useState(false)
-  const [maxVisible, setMaxVisible] = useState(modules.length)
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  const measureRef = useRef<HTMLDivElement>(null)
+  const maxVisible = useMaxVisibleTabs(modules)
 
   useEffect(() => {
     if (!loaded) {
@@ -40,47 +90,6 @@ export function Header() {
       loadPermissions().then(() => loadModules())
     }
   }, [loaded, loadModules, loadPermissions])
-
-  const calcVisible = useCallback(() => {
-    const container = containerRef.current
-    const measure = measureRef.current
-    if (!container || !measure) return
-
-    const available = container.offsetWidth
-    const tabs = Array.from(measure.children) as HTMLElement[]
-    if (tabs.length === 0) return
-
-    // Check if all tabs fit without the dropdown
-    let total = 0
-    for (let i = 0; i < tabs.length; i++) {
-      total += tabs[i].offsetWidth + (i > 0 ? TAB_GAP : 0)
-    }
-    if (total <= available) {
-      setMaxVisible(tabs.length)
-      return
-    }
-
-    // Reserve space for dropdown, calculate how many tabs fit
-    const budget = available - DROPDOWN_BUTTON_WIDTH
-    let used = 0
-    let count = 0
-    for (let i = 0; i < tabs.length; i++) {
-      const w = tabs[i].offsetWidth + (i > 0 ? TAB_GAP : 0)
-      if (used + w > budget) break
-      used += w
-      count++
-    }
-    setMaxVisible(Math.max(count, 0))
-  }, [])
-
-  useEffect(() => {
-    calcVisible()
-    const el = containerRef.current
-    if (!el) return
-    const ro = new ResizeObserver(calcVisible)
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [calcVisible, modules])
 
   const visibleModules = modules.slice(0, maxVisible)
   const overflowModules = modules.slice(maxVisible)
@@ -102,60 +111,41 @@ export function Header() {
         <span className="font-bold text-lg text-primary">HySP Admin</span>
       </NavbarBrand>
 
-      <NavbarContent className="flex gap-1 overflow-hidden" justify="center">
-        {/* Hidden measurement container — renders all tabs off-screen to measure widths */}
-        <div
-          ref={measureRef}
-          aria-hidden
-          className="absolute flex gap-1 invisible pointer-events-none h-0 overflow-hidden"
-        >
-          {modules.map((mod) => (
-            <span
-              key={mod.id}
-              className="px-3 py-1.5 text-sm font-medium whitespace-nowrap"
+      <NavbarContent className="flex gap-1" justify="center">
+        {visibleModules.map((mod) => (
+          <NavbarItem key={mod.id}>
+            <button
+              onClick={() => handleSelectModule(mod)}
+              className={cn(
+                'px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap',
+                selectedModule?.id === mod.id
+                  ? 'bg-primary text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              )}
             >
               {mod.display_name}
-            </span>
-          ))}
-        </div>
+            </button>
+          </NavbarItem>
+        ))}
 
-        {/* Visible area — ref for ResizeObserver */}
-        <div ref={containerRef} className="flex gap-1 items-center w-full min-w-0">
-          {visibleModules.map((mod) => (
-            <NavbarItem key={mod.id}>
-              <button
-                onClick={() => handleSelectModule(mod)}
-                className={cn(
-                  'px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap',
-                  selectedModule?.id === mod.id
-                    ? 'bg-primary text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
-                )}
-              >
-                {mod.display_name}
-              </button>
-            </NavbarItem>
-          ))}
-
-          {overflowModules.length > 0 && (
-            <NavbarItem>
-              <Dropdown>
-                <DropdownTrigger>
-                  <Button variant="light" size="sm" startContent={<LayoutGrid size={14} />} endContent={<ChevronDown size={14} />}>
-                    應用程式
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu aria-label="More modules">
-                  {overflowModules.map((mod) => (
-                    <DropdownItem key={mod.id} onClick={() => handleSelectModule(mod)}>
-                      {mod.display_name}
-                    </DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </Dropdown>
-            </NavbarItem>
-          )}
-        </div>
+        {overflowModules.length > 0 && (
+          <NavbarItem>
+            <Dropdown>
+              <DropdownTrigger>
+                <Button variant="light" size="sm" startContent={<LayoutGrid size={14} />} endContent={<ChevronDown size={14} />}>
+                  應用程式
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu aria-label="More modules">
+                {overflowModules.map((mod) => (
+                  <DropdownItem key={mod.id} onClick={() => handleSelectModule(mod)}>
+                    {mod.display_name}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+          </NavbarItem>
+        )}
       </NavbarContent>
 
       <NavbarContent justify="end">
