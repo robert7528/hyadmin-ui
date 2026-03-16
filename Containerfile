@@ -1,10 +1,10 @@
-FROM node:20 AS deps
+FROM oven/bun:1-alpine AS deps
 
 WORKDIR /app
-COPY package.json ./
-RUN npm install --legacy-peer-deps
+COPY package.json bun.lock* ./
+RUN bun install --frozen-lockfile || bun install
 
-FROM node:20 AS builder
+FROM oven/bun:1-alpine AS builder
 
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -16,7 +16,7 @@ ARG NEXT_PUBLIC_TENANT_ID=default
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_TENANT_ID=$NEXT_PUBLIC_TENANT_ID
 
-RUN npm run build
+RUN bun run build
 
 FROM node:20-alpine AS runner
 
