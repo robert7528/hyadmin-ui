@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useModules } from '@/contexts/module-context'
+import { useLocale } from '@/contexts/locale-context'
 import {
   Breadcrumb as BreadcrumbRoot,
   BreadcrumbList,
@@ -12,24 +13,25 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 
-const adminLabels: Record<string, string> = {
-  users: '使用者管理',
-  roles: '角色管理',
-  modules: '模組管理',
-  'audit-logs': '稽核日誌',
-  features: '功能設定',
-  new: '新增',
-}
-
 export function AppBreadcrumb() {
   const pathname = usePathname()
   const { selectedModule, features } = useModules()
+  const { t } = useLocale()
+
+  const adminLabels: Record<string, string> = {
+    users: t.breadcrumb.users,
+    roles: t.breadcrumb.roles,
+    modules: t.breadcrumb.modules,
+    'audit-logs': t.breadcrumb.audit_logs,
+    features: t.breadcrumb.features,
+    new: t.breadcrumb.new,
+  }
 
   const segments = pathname.split('/').filter(Boolean)
 
   // Build breadcrumb: Home -> Module -> Feature
   const crumbs: { label: string; href?: string }[] = [
-    { label: '首頁', href: '/' },
+    { label: t.breadcrumb.home, href: '/' },
   ]
 
   if (selectedModule) {
@@ -42,7 +44,7 @@ export function AppBreadcrumb() {
       crumbs.push({ label: matchedFeature.display_name })
     }
   } else if (segments.includes('admin')) {
-    crumbs.push({ label: '管理設定' })
+    crumbs.push({ label: t.breadcrumb.admin })
     const adminSeg = segments[segments.indexOf('admin') + 1]
     if (adminSeg && adminLabels[adminSeg]) {
       crumbs.push({ label: adminLabels[adminSeg] })

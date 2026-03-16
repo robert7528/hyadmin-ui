@@ -11,6 +11,7 @@ import type { Role } from '@/types/role'
 import type { Module } from '@/types/module'
 import type { Feature } from '@/types/feature'
 import type { Permission } from '@/types/permission'
+import { useLocale } from '@/contexts/locale-context'
 
 interface FeatureWithPermissions extends Feature {
   permissions: Permission[]
@@ -21,6 +22,7 @@ interface ModuleWithFeatures extends Module {
 }
 
 export default function RolePermissionsPage() {
+  const { t } = useLocale()
   const { id } = useParams<{ id: string }>()
   const [role, setRole] = useState<Role | null>(null)
   const [tree, setTree] = useState<ModuleWithFeatures[]>([])
@@ -87,12 +89,12 @@ export default function RolePermissionsPage() {
     <div className="space-y-4 max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold">角色授權設定</h1>
+          <h1 className="text-xl font-semibold">{t.roles.permissions_title}</h1>
           {role && <p className="text-muted-foreground text-sm mt-0.5">{role.name}</p>}
         </div>
         <Button size="sm" disabled={saving} onClick={handleSave}>
           {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          儲存
+          {t.common.save}
         </Button>
       </div>
 
@@ -121,7 +123,7 @@ export default function RolePermissionsPage() {
                       </div>
                     ))}
                     {feat.permissions.length === 0 && (
-                      <p className="text-xs text-muted-foreground">（無授權點）</p>
+                      <p className="text-xs text-muted-foreground">{t.roles.no_permissions}</p>
                     )}
                   </div>
                 </div>

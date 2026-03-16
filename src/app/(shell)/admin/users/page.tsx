@@ -16,8 +16,10 @@ import {
 import { adminUsersApi } from '@/lib/api'
 import type { AdminUser } from '@/types/user'
 import { PermissionGuard } from '@/components/permission-guard'
+import { useLocale } from '@/contexts/locale-context'
 
 export default function UsersPage() {
+  const { t } = useLocale()
   const [users, setUsers] = useState<AdminUser[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -36,7 +38,7 @@ export default function UsersPage() {
   useEffect(() => { load() }, [])
 
   const handleDelete = async (id: number) => {
-    if (!confirm('確定刪除此使用者？')) return
+    if (!confirm(t.users.confirm_delete)) return
     await adminUsersApi.delete(id)
     load()
   }
@@ -44,12 +46,12 @@ export default function UsersPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">使用者管理 <span className="text-sm text-muted-foreground">({total})</span></h1>
+        <h1 className="text-xl font-semibold">{t.users.title} <span className="text-sm text-muted-foreground">({total})</span></h1>
         <PermissionGuard code="admin.users.create">
           <Button size="sm" asChild>
             <Link href="/admin/users/new">
               <Plus className="mr-2 h-4 w-4" />
-              新增使用者
+              {t.users.new}
             </Link>
           </Button>
         </PermissionGuard>
@@ -62,13 +64,13 @@ export default function UsersPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>帳號</TableHead>
-              <TableHead>顯示名稱</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>租戶</TableHead>
-              <TableHead>登入方式</TableHead>
-              <TableHead>狀態</TableHead>
-              <TableHead>操作</TableHead>
+              <TableHead>{t.users.username}</TableHead>
+              <TableHead>{t.users.display_name}</TableHead>
+              <TableHead>{t.users.email}</TableHead>
+              <TableHead>{t.users.tenant}</TableHead>
+              <TableHead>{t.users.provider}</TableHead>
+              <TableHead>{t.common.status}</TableHead>
+              <TableHead>{t.common.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -83,7 +85,7 @@ export default function UsersPage() {
                 </TableCell>
                 <TableCell>
                   <Badge variant={user.enabled ? 'default' : 'outline'}>
-                    {user.enabled ? '啟用' : '停用'}
+                    {user.enabled ? t.common.enabled : t.common.disabled}
                   </Badge>
                 </TableCell>
                 <TableCell>

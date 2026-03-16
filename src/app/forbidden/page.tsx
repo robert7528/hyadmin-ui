@@ -1,12 +1,17 @@
+'use client'
+
 import Link from 'next/link'
+import { useLocale } from '@/contexts/locale-context'
 
 export default function ForbiddenPage() {
+  const { t } = useLocale()
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
       <h1 className="text-6xl font-bold text-gray-200">403</h1>
-      <p className="text-gray-500">您沒有存取此功能的權限</p>
+      <p className="text-gray-500">{t.errors.forbidden}</p>
       <Link href="/" className="text-primary hover:underline text-sm">
-        回首頁
+        {t.errors.go_home}
       </Link>
     </div>
   )

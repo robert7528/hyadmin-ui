@@ -16,8 +16,10 @@ import {
 import { adminModulesApi } from '@/lib/api'
 import type { Module } from '@/types/module'
 import { PermissionGuard } from '@/components/permission-guard'
+import { useLocale } from '@/contexts/locale-context'
 
 export default function ModulesPage() {
+  const { t } = useLocale()
   const [modules, setModules] = useState<Module[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -34,7 +36,7 @@ export default function ModulesPage() {
   useEffect(() => { load() }, [])
 
   const handleDelete = async (id: number) => {
-    if (!confirm('確定刪除此模組？')) return
+    if (!confirm(t.modules.confirm_delete)) return
     await adminModulesApi.delete(id)
     load()
   }
@@ -42,12 +44,12 @@ export default function ModulesPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">模組管理</h1>
+        <h1 className="text-xl font-semibold">{t.modules.title}</h1>
         <PermissionGuard code="admin.modules.create">
           <Button size="sm" asChild>
             <Link href="/admin/modules/new">
               <Plus className="mr-2 h-4 w-4" />
-              新增模組
+              {t.modules.new}
             </Link>
           </Button>
         </PermissionGuard>
@@ -60,12 +62,12 @@ export default function ModulesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>名稱</TableHead>
-              <TableHead>顯示名稱</TableHead>
-              <TableHead>路由</TableHead>
-              <TableHead>排序</TableHead>
-              <TableHead>狀態</TableHead>
-              <TableHead>操作</TableHead>
+              <TableHead>{t.modules.name}</TableHead>
+              <TableHead>{t.modules.display_name}</TableHead>
+              <TableHead>{t.modules.route}</TableHead>
+              <TableHead>{t.modules.sort_order}</TableHead>
+              <TableHead>{t.common.status}</TableHead>
+              <TableHead>{t.common.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -77,7 +79,7 @@ export default function ModulesPage() {
                 <TableCell>{mod.sort_order}</TableCell>
                 <TableCell>
                   <Badge variant={mod.enabled ? 'default' : 'outline'}>
-                    {mod.enabled ? '啟用' : '停用'}
+                    {mod.enabled ? t.common.enabled : t.common.disabled}
                   </Badge>
                 </TableCell>
                 <TableCell>

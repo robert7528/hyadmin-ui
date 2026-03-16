@@ -2,12 +2,15 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { MoreHorizontal, LogOut, Menu, User } from 'lucide-react'
+import { MoreHorizontal, LogOut, Menu, User, Globe } from 'lucide-react'
 import { useModules } from '@/contexts/module-context'
 import { usePermission } from '@/contexts/permission-context'
+import { useLocale } from '@/contexts/locale-context'
+import { localeLabels, type Locale } from '@/i18n'
 import { clearToken } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -83,6 +86,7 @@ export function Header({ onMenuClick }: HeaderProps) {
   const pathname = usePathname()
   const { modules, selectedModule, loadModules, selectModule } = useModules()
   const { loadPermissions } = usePermission()
+  const { t, locale, setLocale } = useLocale()
   const [loaded, setLoaded] = useState(false)
 
   const maxVisible = useMaxVisibleTabs(modules)
@@ -136,6 +140,8 @@ export function Header({ onMenuClick }: HeaderProps) {
         HySP Console
       </Link>
 
+      <Separator orientation="vertical" className="h-6 mx-2" />
+
       {/* Center: Module tabs */}
       <div className="flex-1 flex items-center gap-1 overflow-hidden min-w-0">
         {visibleModules.map((mod) => {
@@ -183,9 +189,29 @@ export function Header({ onMenuClick }: HeaderProps) {
           className={cn('shrink-0 whitespace-nowrap', isAdmin && 'font-semibold')}
           onClick={handleAdminClick}
         >
-          系統管理
+          {t.header.admin}
         </Button>
       </div>
+
+      {/* Language switcher */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8">
+            <Globe size={16} />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {(Object.entries(localeLabels) as [Locale, string][]).map(([key, label]) => (
+            <DropdownMenuItem
+              key={key}
+              onClick={() => setLocale(key)}
+              className={locale === key ? 'font-semibold' : ''}
+            >
+              {label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {/* Right: User menu */}
       <DropdownMenu>
@@ -197,12 +223,12 @@ export function Header({ onMenuClick }: HeaderProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => router.push('/admin/profile')}>
-            個人設定
+            {t.header.profile}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout}>
             <LogOut size={14} className="mr-2" />
-            登出
+            {t.header.logout}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -15,8 +15,10 @@ import {
 import { adminRolesApi } from '@/lib/api'
 import type { Role } from '@/types/role'
 import { PermissionGuard } from '@/components/permission-guard'
+import { useLocale } from '@/contexts/locale-context'
 
 export default function RolesPage() {
+  const { t } = useLocale()
   const [roles, setRoles] = useState<Role[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -33,7 +35,7 @@ export default function RolesPage() {
   useEffect(() => { load() }, [])
 
   const handleDelete = async (id: number) => {
-    if (!confirm('確定刪除此角色？')) return
+    if (!confirm(t.roles.confirm_delete)) return
     await adminRolesApi.delete(id)
     load()
   }
@@ -41,12 +43,12 @@ export default function RolesPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">角色管理</h1>
+        <h1 className="text-xl font-semibold">{t.roles.title}</h1>
         <PermissionGuard code="admin.roles.create">
           <Button size="sm" asChild>
             <Link href="/admin/roles/new">
               <Plus className="mr-2 h-4 w-4" />
-              新增角色
+              {t.roles.new}
             </Link>
           </Button>
         </PermissionGuard>
@@ -59,10 +61,10 @@ export default function RolesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>角色名稱</TableHead>
-              <TableHead>說明</TableHead>
-              <TableHead>租戶</TableHead>
-              <TableHead>操作</TableHead>
+              <TableHead>{t.roles.name}</TableHead>
+              <TableHead>{t.roles.description}</TableHead>
+              <TableHead>{t.roles.tenant}</TableHead>
+              <TableHead>{t.common.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -73,7 +75,7 @@ export default function RolesPage() {
                 <TableCell>{role.tenant_code}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="icon" title="設定授權" asChild>
+                    <Button variant="ghost" size="icon" title={t.roles.permissions_title} asChild>
                       <Link href={`/admin/roles/${role.id}`}>
                         <Settings className="h-4 w-4" />
                       </Link>

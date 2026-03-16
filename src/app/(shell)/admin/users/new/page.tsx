@@ -8,8 +8,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { adminUsersApi } from '@/lib/api'
+import { useLocale } from '@/contexts/locale-context'
 
 export default function NewUserPage() {
+  const { t } = useLocale()
   const router = useRouter()
   const [form, setForm] = useState({
     tenant_code: '', username: '', password: '', display_name: '', email: '', provider: 'local',
@@ -28,7 +30,7 @@ export default function NewUserPage() {
       await adminUsersApi.create(form)
       router.push('/admin/users')
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : '建立失敗')
+      setError(err instanceof Error ? err.message : t.common.create_failed)
     } finally {
       setSaving(false)
     }
@@ -36,24 +38,24 @@ export default function NewUserPage() {
 
   return (
     <div className="max-w-lg">
-      <h1 className="text-xl font-semibold mb-4">新增使用者</h1>
+      <h1 className="text-xl font-semibold mb-4">{t.users.new}</h1>
       <Card>
         <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="space-y-2">
-              <Label htmlFor="tenant_code">租戶代碼</Label>
+              <Label htmlFor="tenant_code">{t.common.tenant_code}</Label>
               <Input id="tenant_code" value={form.tenant_code} onChange={set('tenant_code')} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="username">帳號</Label>
+              <Label htmlFor="username">{t.users.username}</Label>
               <Input id="username" value={form.username} onChange={set('username')} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">密碼</Label>
+              <Label htmlFor="password">{t.login.password}</Label>
               <Input id="password" type="password" value={form.password} onChange={set('password')} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="display_name">顯示名稱</Label>
+              <Label htmlFor="display_name">{t.users.display_name}</Label>
               <Input id="display_name" value={form.display_name} onChange={set('display_name')} />
             </div>
             <div className="space-y-2">
@@ -64,9 +66,9 @@ export default function NewUserPage() {
             <div className="flex gap-2 pt-2">
               <Button type="submit" disabled={saving}>
                 {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                建立
+                {t.common.create}
               </Button>
-              <Button variant="ghost" type="button" onClick={() => router.back()}>取消</Button>
+              <Button variant="ghost" type="button" onClick={() => router.back()}>{t.common.cancel}</Button>
             </div>
           </form>
         </CardContent>

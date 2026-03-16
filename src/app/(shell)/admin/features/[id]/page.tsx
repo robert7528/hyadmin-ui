@@ -34,17 +34,19 @@ import {
 import { adminFeaturesApi, adminPermissionsApi } from '@/lib/api'
 import type { Feature } from '@/types/feature'
 import type { Permission } from '@/types/permission'
-
-const STANDARD_SUFFIXES = [
-  { suffix: 'view', label: '頁面存取', type: 'menu' },
-  { suffix: 'create', label: '新增', type: 'button' },
-  { suffix: 'update', label: '編輯', type: 'button' },
-  { suffix: 'delete', label: '刪除', type: 'button' },
-  { suffix: 'export', label: '匯出', type: 'button' },
-]
+import { useLocale } from '@/contexts/locale-context'
 
 export default function FeaturePermissionsPage() {
+  const { t } = useLocale()
   const { id } = useParams<{ id: string }>()
+
+  const STANDARD_SUFFIXES = [
+    { suffix: 'view', label: t.features.tpl_view, type: 'menu' },
+    { suffix: 'create', label: t.features.tpl_create, type: 'button' },
+    { suffix: 'update', label: t.features.tpl_update, type: 'button' },
+    { suffix: 'delete', label: t.features.tpl_delete, type: 'button' },
+    { suffix: 'export', label: t.features.tpl_export, type: 'button' },
+  ]
   const [feature, setFeature] = useState<Feature | null>(null)
   const [permissions, setPermissions] = useState<Permission[]>([])
   const [loading, setLoading] = useState(true)
@@ -100,7 +102,7 @@ export default function FeaturePermissionsPage() {
   }
 
   const handleDelete = async (permId: number) => {
-    if (!confirm('確定刪除此授權點？')) return
+    if (!confirm(t.features.confirm_delete)) return
     await adminPermissionsApi.delete(permId)
     load()
   }
@@ -114,14 +116,14 @@ export default function FeaturePermissionsPage() {
   return (
     <div className="space-y-4 max-w-2xl">
       <h1 className="text-xl font-semibold">
-        授權點管理
+        {t.features.title}
         {feature && <span className="text-muted-foreground font-normal text-base ml-2">— {feature.display_name}</span>}
       </h1>
 
       {/* Batch create from template */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm font-medium">從範本建立授權點</CardTitle>
+          <CardTitle className="text-sm font-medium">{t.features.batch_title}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-3 mb-3">
@@ -147,26 +149,26 @@ export default function FeaturePermissionsPage() {
           </div>
           <Button size="sm" disabled={batching} onClick={handleBatchCreate}>
             {batching && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            套用範本
+            {t.features.batch_apply}
           </Button>
         </CardContent>
       </Card>
 
       {/* Existing permissions */}
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-muted-foreground">現有授權點</h2>
+        <h2 className="text-sm font-semibold text-muted-foreground">{t.features.existing_title}</h2>
         <Button size="sm" onClick={() => setShowModal(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          新增自訂授權點
+          {t.features.new_custom}
         </Button>
       </div>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Code</TableHead>
-            <TableHead>名稱</TableHead>
-            <TableHead>類型</TableHead>
-            <TableHead>操作</TableHead>
+            <TableHead>{t.features.code}</TableHead>
+            <TableHead>{t.common.name}</TableHead>
+            <TableHead>{t.features.type}</TableHead>
+            <TableHead>{t.common.actions}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -193,45 +195,45 @@ export default function FeaturePermissionsPage() {
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>新增自訂授權點</DialogTitle>
+            <DialogTitle>{t.features.new_custom}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 py-4">
             <div className="space-y-2">
-              <Label htmlFor="perm-suffix">Suffix（code後綴）</Label>
+              <Label htmlFor="perm-suffix">{t.features.suffix}</Label>
               <Input
                 id="perm-suffix"
                 placeholder="e.g. reset_pwd"
                 value={newPerm.suffix}
                 onChange={(e) => setNewPerm({ ...newPerm, suffix: e.target.value })}
               />
-              <p className="text-xs text-muted-foreground">完整 Code: {codePrefix}.{newPerm.suffix || '...'}</p>
+              <p className="text-xs text-muted-foreground">{t.features.full_code}: {codePrefix}.{newPerm.suffix || '...'}</p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="perm-name">顯示名稱</Label>
+              <Label htmlFor="perm-name">{t.common.name}</Label>
               <Input
                 id="perm-name"
-                placeholder="重設密碼"
+                placeholder="e.g. Reset Password"
                 value={newPerm.name}
                 onChange={(e) => setNewPerm({ ...newPerm, name: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <Label>類型</Label>
+              <Label>{t.features.type}</Label>
               <Select value={newPerm.type} onValueChange={(v) => setNewPerm({ ...newPerm, type: v })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="menu">menu（頁面存取）</SelectItem>
-                  <SelectItem value="button">button（操作按鈕）</SelectItem>
-                  <SelectItem value="api">api（API 端點）</SelectItem>
+                  <SelectItem value="menu">menu ({t.features.type_menu})</SelectItem>
+                  <SelectItem value="button">button ({t.features.type_button})</SelectItem>
+                  <SelectItem value="api">api ({t.features.type_api})</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setShowModal(false)}>取消</Button>
-            <Button onClick={handleCreateCustom}>建立</Button>
+            <Button variant="ghost" onClick={() => setShowModal(false)}>{t.common.cancel}</Button>
+            <Button onClick={handleCreateCustom}>{t.common.create}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

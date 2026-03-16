@@ -10,11 +10,13 @@ import { Button } from '@/components/ui/button'
 import { authApi, setToken } from '@/lib/api'
 import { usePermission } from '@/contexts/permission-context'
 import { useModules } from '@/contexts/module-context'
+import { useLocale } from '@/contexts/locale-context'
 
 export default function LoginPage() {
   const router = useRouter()
   const { loadPermissions } = usePermission()
   const { loadModules } = useModules()
+  const { t } = useLocale()
   const [form, setForm] = useState({ tenant_code: '', username: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -30,7 +32,7 @@ export default function LoginPage() {
       await loadModules()
       router.push('/')
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : '登入失敗')
+      setError(err instanceof Error ? err.message : t.login.failed)
     } finally {
       setLoading(false)
     }
@@ -39,13 +41,13 @@ export default function LoginPage() {
   return (
     <Card className="w-full max-w-sm shadow-lg">
       <CardHeader className="flex flex-col items-center pb-0 pt-6">
-        <CardTitle className="text-2xl font-bold text-primary">HySP Admin</CardTitle>
-        <CardDescription className="mt-1">管理員登入</CardDescription>
+        <CardTitle className="text-2xl font-bold text-primary">{t.login.title}</CardTitle>
+        <CardDescription className="mt-1">{t.login.subtitle}</CardDescription>
       </CardHeader>
       <CardContent className="px-6 pb-6 pt-4">
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="tenant_code">租戶代碼</Label>
+            <Label htmlFor="tenant_code">{t.login.tenant_code}</Label>
             <Input
               id="tenant_code"
               placeholder="tenant_code"
@@ -55,7 +57,7 @@ export default function LoginPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="username">帳號</Label>
+            <Label htmlFor="username">{t.login.username}</Label>
             <Input
               id="username"
               placeholder="username"
@@ -65,7 +67,7 @@ export default function LoginPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">密碼</Label>
+            <Label htmlFor="password">{t.login.password}</Label>
             <Input
               id="password"
               type="password"
@@ -78,7 +80,7 @@ export default function LoginPage() {
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            登入
+            {t.login.submit}
           </Button>
         </form>
       </CardContent>

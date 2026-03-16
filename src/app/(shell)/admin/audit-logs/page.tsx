@@ -14,6 +14,7 @@ import {
   TableCell,
 } from '@/components/ui/table'
 import { apiFetch } from '@/lib/api'
+import { useLocale } from '@/contexts/locale-context'
 
 interface AuditLog {
   id: number
@@ -37,6 +38,7 @@ const actionVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'o
 }
 
 export default function AuditLogsPage() {
+  const { t } = useLocale()
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -62,18 +64,18 @@ export default function AuditLogsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">操作稽核日誌 <span className="text-sm text-muted-foreground">({total})</span></h1>
+        <h1 className="text-xl font-semibold">{t.audit_logs.title} <span className="text-sm text-muted-foreground">({total})</span></h1>
         <div className="flex gap-2">
           <div className="relative w-48">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="搜尋資源..."
+              placeholder={t.audit_logs.search_placeholder}
               value={resource}
               onChange={(e) => setResource(e.target.value)}
               className="pl-8 h-9"
             />
           </div>
-          <Button size="sm" onClick={load}>查詢</Button>
+          <Button size="sm" onClick={load}>{t.common.search}</Button>
         </div>
       </div>
       {loading ? (
@@ -84,12 +86,12 @@ export default function AuditLogsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>時間</TableHead>
-              <TableHead>操作者</TableHead>
-              <TableHead>動作</TableHead>
-              <TableHead>資源</TableHead>
+              <TableHead>{t.audit_logs.time}</TableHead>
+              <TableHead>{t.audit_logs.operator}</TableHead>
+              <TableHead>{t.audit_logs.action}</TableHead>
+              <TableHead>{t.audit_logs.resource}</TableHead>
               <TableHead>ID</TableHead>
-              <TableHead>IP</TableHead>
+              <TableHead>{t.audit_logs.ip}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

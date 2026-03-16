@@ -13,8 +13,10 @@ import { Separator } from '@/components/ui/separator'
 import { adminModulesApi, adminFeaturesApi } from '@/lib/api'
 import type { Module } from '@/types/module'
 import type { Feature } from '@/types/feature'
+import { useLocale } from '@/contexts/locale-context'
 
 export default function EditModulePage() {
+  const { t } = useLocale()
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const [mod, setMod] = useState<Module | null>(null)
@@ -44,54 +46,54 @@ export default function EditModulePage() {
     }
   }
 
-  if (!mod) return <p className="text-muted-foreground text-sm">載入中...</p>
+  if (!mod) return <p className="text-muted-foreground text-sm">{t.common.loading}</p>
 
   return (
     <div className="max-w-lg space-y-4">
-      <h1 className="text-xl font-semibold">編輯模組 — <span className="font-mono text-base">{mod.name}</span></h1>
+      <h1 className="text-xl font-semibold">{t.modules.edit} — <span className="font-mono text-base">{mod.name}</span></h1>
       <Card>
         <CardContent className="pt-6 space-y-3">
           <div className="space-y-2">
-            <Label htmlFor="display_name">顯示名稱</Label>
+            <Label htmlFor="display_name">{t.modules.display_name}</Label>
             <Input id="display_name" value={mod.display_name} onChange={(e) => setMod({ ...mod, display_name: e.target.value })} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="url">子應用 URL</Label>
+            <Label htmlFor="url">{t.modules.url}</Label>
             <Input id="url" value={mod.url} onChange={(e) => setMod({ ...mod, url: e.target.value })} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="icon">圖示</Label>
+            <Label htmlFor="icon">{t.modules.icon}</Label>
             <Input id="icon" value={mod.icon} onChange={(e) => setMod({ ...mod, icon: e.target.value })} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">說明</Label>
+            <Label htmlFor="description">{t.common.description}</Label>
             <Input id="description" value={mod.description} onChange={(e) => setMod({ ...mod, description: e.target.value })} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="sort_order">排序</Label>
+            <Label htmlFor="sort_order">{t.modules.sort_order}</Label>
             <Input id="sort_order" type="number" value={String(mod.sort_order)} onChange={(e) => setMod({ ...mod, sort_order: Number(e.target.value) })} />
           </div>
           <div className="flex items-center gap-2">
             <Switch checked={mod.enabled} onCheckedChange={(v) => setMod({ ...mod, enabled: v })} />
-            <span className="text-sm">啟用</span>
+            <span className="text-sm">{t.common.enabled}</span>
           </div>
           <div className="flex gap-2 pt-2">
             <Button disabled={saving} onClick={handleSave}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              儲存
+              {t.common.save}
             </Button>
-            <Button variant="ghost" onClick={() => router.back()}>取消</Button>
+            <Button variant="ghost" onClick={() => router.back()}>{t.common.cancel}</Button>
           </div>
         </CardContent>
       </Card>
 
       <Separator />
       <div className="flex items-center justify-between">
-        <h2 className="font-medium text-sm">功能列表</h2>
+        <h2 className="font-medium text-sm">{t.modules.features_title}</h2>
         <Button size="sm" asChild>
           <Link href={`/admin/modules/${id}/features/new`}>
             <Plus className="mr-2 h-4 w-4" />
-            新增功能
+            {t.modules.new_feature}
           </Link>
         </Button>
       </div>

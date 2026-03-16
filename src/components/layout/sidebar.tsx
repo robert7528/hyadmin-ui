@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useModules } from '@/contexts/module-context'
+import { useLocale } from '@/contexts/locale-context'
 import { cn } from '@/lib/utils'
 import { Users, Shield, Package, ScrollText, Settings } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -13,16 +14,17 @@ interface MenuItem {
   icon: LucideIcon
 }
 
-const adminMenuItems: MenuItem[] = [
-  { label: '使用者管理', href: '/admin/users', icon: Users },
-  { label: '角色管理', href: '/admin/roles', icon: Shield },
-  { label: '模組管理', href: '/admin/modules', icon: Package },
-  { label: '稽核日誌', href: '/admin/audit-logs', icon: ScrollText },
-]
-
 export function Sidebar() {
   const pathname = usePathname()
   const { selectedModule, features } = useModules()
+  const { t } = useLocale()
+
+  const adminMenuItems: MenuItem[] = [
+    { label: t.sidebar.users, href: '/admin/users', icon: Users },
+    { label: t.sidebar.roles, href: '/admin/roles', icon: Shield },
+    { label: t.sidebar.modules, href: '/admin/modules', icon: Package },
+    { label: t.sidebar.audit_logs, href: '/admin/audit-logs', icon: ScrollText },
+  ]
   const isAdmin =
     pathname.startsWith('/admin') || pathname.startsWith('/hyadmin/admin')
 
@@ -39,7 +41,7 @@ export function Sidebar() {
         }))
 
   const sectionTitle = isAdmin
-    ? '系統管理'
+    ? t.header.admin
     : selectedModule?.display_name
 
   return (
@@ -54,7 +56,7 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto p-2 space-y-1">
         {!isAdmin && !selectedModule && (
           <p className="text-sm text-muted-foreground px-3 py-2">
-            請從頂部選擇模組
+            {t.sidebar.select_module}
           </p>
         )}
         {items.map((item) => {
