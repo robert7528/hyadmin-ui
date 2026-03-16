@@ -2,30 +2,35 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
+import { Plus, Trash2, Loader2 } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
 import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Checkbox,
-  Chip,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-  Spinner,
   Table,
-  TableBody,
-  TableCell,
-  TableColumn,
   TableHeader,
+  TableBody,
   TableRow,
-} from '@heroui/react'
-import { Plus, Trash2 } from 'lucide-react'
+  TableHead,
+  TableCell,
+} from '@/components/ui/table'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import { adminFeaturesApi, adminPermissionsApi } from '@/lib/api'
 import type { Feature } from '@/types/feature'
 import type { Permission } from '@/types/permission'
@@ -100,114 +105,136 @@ export default function FeaturePermissionsPage() {
     load()
   }
 
-  if (loading) return <div className="flex justify-center py-12"><Spinner /></div>
+  if (loading) return (
+    <div className="flex justify-center py-12">
+      <Loader2 className="h-6 w-6 animate-spin" />
+    </div>
+  )
 
   return (
     <div className="space-y-4 max-w-2xl">
       <h1 className="text-xl font-semibold">
         授權點管理
-        {feature && <span className="text-gray-500 font-normal text-base ml-2">— {feature.display_name}</span>}
+        {feature && <span className="text-muted-foreground font-normal text-base ml-2">— {feature.display_name}</span>}
       </h1>
 
       {/* Batch create from template */}
       <Card>
         <CardHeader>
-          <p className="text-sm font-medium">從範本建立授權點</p>
+          <CardTitle className="text-sm font-medium">從範本建立授權點</CardTitle>
         </CardHeader>
-        <CardBody>
+        <CardContent>
           <div className="flex flex-wrap gap-3 mb-3">
             {STANDARD_SUFFIXES.map((s) => (
-              <Checkbox
-                key={s.suffix}
-                size="sm"
-                isSelected={selectedSuffixes.has(s.suffix)}
-                onValueChange={(v) => {
-                  setSelectedSuffixes((prev) => {
-                    const next = new Set(prev)
-                    if (v) next.add(s.suffix)
-                    else next.delete(s.suffix)
-                    return next
-                  })
-                }}
-              >
-                {s.label}
-              </Checkbox>
+              <div key={s.suffix} className="flex items-center gap-1.5">
+                <Checkbox
+                  id={`suffix-${s.suffix}`}
+                  checked={selectedSuffixes.has(s.suffix)}
+                  onCheckedChange={(v) => {
+                    setSelectedSuffixes((prev) => {
+                      const next = new Set(prev)
+                      if (v) next.add(s.suffix)
+                      else next.delete(s.suffix)
+                      return next
+                    })
+                  }}
+                />
+                <label htmlFor={`suffix-${s.suffix}`} className="text-sm cursor-pointer">
+                  {s.label}
+                </label>
+              </div>
             ))}
           </div>
-          <Button size="sm" color="primary" isLoading={batching} onClick={handleBatchCreate}>
+          <Button size="sm" disabled={batching} onClick={handleBatchCreate}>
+            {batching && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             套用範本
           </Button>
-        </CardBody>
+        </CardContent>
       </Card>
 
       {/* Existing permissions */}
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-gray-600">現有授權點</h2>
-        <Button size="sm" startContent={<Plus size={14} />} onClick={() => setShowModal(true)}>
+        <h2 className="text-sm font-semibold text-muted-foreground">現有授權點</h2>
+        <Button size="sm" onClick={() => setShowModal(true)}>
+          <Plus className="mr-2 h-4 w-4" />
           新增自訂授權點
         </Button>
       </div>
-      <Table aria-label="permissions" isStriped>
+      <Table>
         <TableHeader>
-          <TableColumn>Code</TableColumn>
-          <TableColumn>名稱</TableColumn>
-          <TableColumn>類型</TableColumn>
-          <TableColumn>操作</TableColumn>
+          <TableRow>
+            <TableHead>Code</TableHead>
+            <TableHead>名稱</TableHead>
+            <TableHead>類型</TableHead>
+            <TableHead>操作</TableHead>
+          </TableRow>
         </TableHeader>
-        <TableBody items={permissions}>
-          {(p) => (
+        <TableBody>
+          {permissions.map((p) => (
             <TableRow key={p.id}>
               <TableCell className="font-mono text-xs">{p.code}</TableCell>
               <TableCell>{p.name}</TableCell>
               <TableCell>
-                <Chip size="sm" variant="flat" color={p.type === 'menu' ? 'primary' : p.type === 'api' ? 'warning' : 'default'}>
+                <Badge variant={p.type === 'menu' ? 'default' : p.type === 'api' ? 'outline' : 'secondary'}>
                   {p.type}
-                </Chip>
+                </Badge>
               </TableCell>
               <TableCell>
-                <Button isIconOnly size="sm" variant="light" color="danger" onClick={() => handleDelete(p.id)}>
-                  <Trash2 size={14} />
+                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDelete(p.id)}>
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </TableCell>
             </TableRow>
-          )}
+          ))}
         </TableBody>
       </Table>
 
       {/* Custom permission modal */}
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
-        <ModalContent>
-          <ModalHeader>新增自訂授權點</ModalHeader>
-          <ModalBody className="space-y-3">
-            <Input
-              label="Suffix（code後綴）"
-              placeholder="e.g. reset_pwd"
-              description={`完整 Code: ${codePrefix}.${newPerm.suffix || '...'}`}
-              value={newPerm.suffix}
-              onChange={(e) => setNewPerm({ ...newPerm, suffix: e.target.value })}
-            />
-            <Input
-              label="顯示名稱"
-              placeholder="重設密碼"
-              value={newPerm.name}
-              onChange={(e) => setNewPerm({ ...newPerm, name: e.target.value })}
-            />
-            <Select
-              label="類型"
-              selectedKeys={[newPerm.type]}
-              onSelectionChange={(v) => setNewPerm({ ...newPerm, type: String([...v][0]) })}
-            >
-              <SelectItem key="menu">menu（頁面存取）</SelectItem>
-              <SelectItem key="button">button（操作按鈕）</SelectItem>
-              <SelectItem key="api">api（API 端點）</SelectItem>
-            </Select>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="light" onClick={() => setShowModal(false)}>取消</Button>
-            <Button color="primary" onClick={handleCreateCustom}>建立</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>新增自訂授權點</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="perm-suffix">Suffix（code後綴）</Label>
+              <Input
+                id="perm-suffix"
+                placeholder="e.g. reset_pwd"
+                value={newPerm.suffix}
+                onChange={(e) => setNewPerm({ ...newPerm, suffix: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">完整 Code: {codePrefix}.{newPerm.suffix || '...'}</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="perm-name">顯示名稱</Label>
+              <Input
+                id="perm-name"
+                placeholder="重設密碼"
+                value={newPerm.name}
+                onChange={(e) => setNewPerm({ ...newPerm, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>類型</Label>
+              <Select value={newPerm.type} onValueChange={(v) => setNewPerm({ ...newPerm, type: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="menu">menu（頁面存取）</SelectItem>
+                  <SelectItem value="button">button（操作按鈕）</SelectItem>
+                  <SelectItem value="api">api（API 端點）</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setShowModal(false)}>取消</Button>
+            <Button onClick={handleCreateCustom}>建立</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -13,30 +13,42 @@
 hyadmin-ui/
 ├── src/
 │   ├── app/
-│   │   ├── layout.tsx              # Root shell: HeroUI Provider + Header + Sidebar + Footer
+│   │   ├── layout.tsx              # Root shell: Providers + ShellWrapper
 │   │   ├── page.tsx                # Dashboard 首頁
-│   │   ├── globals.css
+│   │   ├── globals.css             # Tailwind + CSS variables (Shadcn/ui theme)
+│   │   ├── login/page.tsx          # 登入頁
+│   │   ├── (shell)/                # Shell route group（admin pages + profile）
+│   │   │   ├── admin/              # 系統管理 CRUD 頁面
+│   │   │   └── profile/page.tsx    # 個人設定
 │   │   └── app/[...route]/page.tsx # micro-app 動態路由（client component）
 │   ├── components/
-│   │   ├── providers.tsx           # HeroUI provider（'use client'）
+│   │   ├── providers.tsx           # PermissionProvider + ModuleProvider
+│   │   ├── permission-guard.tsx    # 權限控制元件
 │   │   ├── layout/
-│   │   │   ├── header.tsx          # Navbar（HeroUI）
-│   │   │   ├── sidebar.tsx         # 動態選單，fetchModules() 取模組清單
+│   │   │   ├── header.tsx          # Top bar（module tabs + user menu）
+│   │   │   ├── sidebar.tsx         # 左側選單（模組功能 / admin 選單）
+│   │   │   ├── breadcrumb.tsx      # 麵包屑導航
+│   │   │   ├── shell-wrapper.tsx   # Header + Sidebar + main 整合
 │   │   │   └── footer.tsx
 │   │   ├── micro-app/
 │   │   │   └── app-container.tsx   # <micro-app> 自訂元素容器
-│   │   └── ui/                     # Shadcn/ui 組件（bunx shadcn add ...）
+│   │   └── ui/                     # Shadcn/ui 組件
+│   ├── contexts/
+│   │   ├── module-context.tsx      # 模組 + 功能選擇狀態
+│   │   └── permission-context.tsx  # 使用者權限快取
+│   ├── hooks/
+│   │   └── use-idle-timeout.ts     # 閒置自動登出
 │   ├── lib/
+│   │   ├── api.ts                  # apiFetch + 各資源 API client
 │   │   ├── utils.ts                # cn() helper（clsx + tailwind-merge）
 │   │   └── micro-app.ts            # fetchModules() + initMicroApp()
-│   └── types/
-│       └── module.ts               # Module interface
+│   └── types/                      # TypeScript interfaces
 ├── deployment/
 │   ├── hyadmin-ui.container        # Podman Quadlet
 │   ├── nginx-hyadmin-ui.conf       # nginx location config
 │   └── deploy.sh                   # 完整部署腳本
 ├── next.config.ts                  # basePath: '/hyadmin', output: 'standalone'
-├── tailwind.config.ts              # HeroUI plugin
+├── tailwind.config.ts              # Shadcn/ui theme + tailwindcss-animate
 ├── components.json                 # Shadcn/ui config
 ├── .env.local.example
 └── Containerfile                   # Bun build + Node runner
@@ -45,7 +57,7 @@ hyadmin-ui/
 ## Tech Stack
 
 - Next.js 15 (App Router) + React 19 + TypeScript
-- HeroUI（整體 layout shell）+ Shadcn/ui（UI 組件）+ Tailwind CSS
+- Shadcn/ui（Radix UI primitives）+ Tailwind CSS
 - micro-app（`@micro-zoe/micro-app`）微前端子應用載入
 - Bun（package manager + build）
 
@@ -64,10 +76,16 @@ hyadmin-ui/
   sudo bash deployment/deploy.sh
   ```
 
+### Layout 架構
+- **Header**: Logo + 模組水平 tabs（responsive overflow dropdown）+ 系統管理 tab + 使用者選單
+- **Sidebar**: 依選中模組顯示功能列表；admin 路由顯示管理選單
+- **Breadcrumb**: 首頁 → 模組 → 功能（或管理路徑標籤）
+- **Mobile**: Sidebar 以 Sheet 呈現，Header 左側漢堡按鈕觸發
+
 ### 模組動態載入流程
-1. Sidebar `useEffect` → `fetchModules()` → `GET /api/v1/modules`（帶 `X-Tenant-ID`）
-2. 點選模組 → `/app/{route}` → `AppContainer`
-3. `AppContainer` → `microApp.start()` + `<micro-app name url baseroute>`
+1. Header `loadModules()` → `GET /api/v1/modules`（帶 `X-Tenant-ID`）
+2. 點選模組 tab → `selectModule()` → 載入功能列表 → Sidebar 顯示
+3. 點選功能 → `/app/{route}/{path}` → `AppContainer` → `microApp.start()`
 
 ### 新增 Shadcn/ui 組件
 ```bash

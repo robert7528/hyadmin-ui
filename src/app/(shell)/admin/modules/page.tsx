@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
-  Button,
   Table,
   TableHeader,
-  TableColumn,
   TableBody,
   TableRow,
+  TableHead,
   TableCell,
-  Chip,
-} from '@heroui/react'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+} from '@/components/ui/table'
 import { adminModulesApi } from '@/lib/api'
 import type { Module } from '@/types/module'
 import { PermissionGuard } from '@/components/permission-guard'
@@ -44,48 +44,61 @@ export default function ModulesPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">模組管理</h1>
         <PermissionGuard code="admin.modules.create">
-          <Button as={Link} href="/admin/modules/new" color="primary" startContent={<Plus size={16} />} size="sm">
-            新增模組
+          <Button size="sm" asChild>
+            <Link href="/admin/modules/new">
+              <Plus className="mr-2 h-4 w-4" />
+              新增模組
+            </Link>
           </Button>
         </PermissionGuard>
       </div>
-      <Table aria-label="modules" isStriped>
-        <TableHeader>
-          <TableColumn>名稱</TableColumn>
-          <TableColumn>顯示名稱</TableColumn>
-          <TableColumn>路由</TableColumn>
-          <TableColumn>排序</TableColumn>
-          <TableColumn>狀態</TableColumn>
-          <TableColumn>操作</TableColumn>
-        </TableHeader>
-        <TableBody isLoading={loading} items={modules}>
-          {(mod) => (
-            <TableRow key={mod.id}>
-              <TableCell>{mod.name}</TableCell>
-              <TableCell>{mod.display_name}</TableCell>
-              <TableCell className="font-mono text-sm">{mod.route}</TableCell>
-              <TableCell>{mod.sort_order}</TableCell>
-              <TableCell>
-                <Chip size="sm" color={mod.enabled ? 'success' : 'default'} variant="flat">
-                  {mod.enabled ? '啟用' : '停用'}
-                </Chip>
-              </TableCell>
-              <TableCell>
-                <div className="flex gap-2">
-                  <Button as={Link} href={`/admin/modules/${mod.id}`} isIconOnly size="sm" variant="light">
-                    <Pencil size={14} />
-                  </Button>
-                  <PermissionGuard code="admin.modules.delete">
-                    <Button isIconOnly size="sm" variant="light" color="danger" onClick={() => handleDelete(mod.id)}>
-                      <Trash2 size={14} />
-                    </Button>
-                  </PermissionGuard>
-                </div>
-              </TableCell>
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>名稱</TableHead>
+              <TableHead>顯示名稱</TableHead>
+              <TableHead>路由</TableHead>
+              <TableHead>排序</TableHead>
+              <TableHead>狀態</TableHead>
+              <TableHead>操作</TableHead>
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {modules.map((mod) => (
+              <TableRow key={mod.id}>
+                <TableCell>{mod.name}</TableCell>
+                <TableCell>{mod.display_name}</TableCell>
+                <TableCell className="font-mono text-sm">{mod.route}</TableCell>
+                <TableCell>{mod.sort_order}</TableCell>
+                <TableCell>
+                  <Badge variant={mod.enabled ? 'default' : 'outline'}>
+                    {mod.enabled ? '啟用' : '停用'}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link href={`/admin/modules/${mod.id}`}>
+                        <Pencil className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                    <PermissionGuard code="admin.modules.delete">
+                      <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDelete(mod.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </PermissionGuard>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   )
 }

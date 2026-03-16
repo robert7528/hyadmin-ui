@@ -1,18 +1,18 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Search, Loader2 } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableHeader,
-  TableColumn,
   TableBody,
   TableRow,
+  TableHead,
   TableCell,
-  Input,
-  Button,
-  Chip,
-} from '@heroui/react'
-import { Search } from 'lucide-react'
+} from '@/components/ui/table'
 import { apiFetch } from '@/lib/api'
 
 interface AuditLog {
@@ -28,12 +28,12 @@ interface AuditLog {
   created_at: string
 }
 
-const actionColors: Record<string, 'success' | 'warning' | 'danger' | 'default'> = {
-  CREATE: 'success',
-  UPDATE: 'warning',
-  DELETE: 'danger',
-  LOGIN: 'default',
-  LOGOUT: 'default',
+const actionVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  CREATE: 'default',
+  UPDATE: 'secondary',
+  DELETE: 'destructive',
+  LOGIN: 'outline',
+  LOGOUT: 'outline',
 }
 
 export default function AuditLogsPage() {
@@ -62,47 +62,56 @@ export default function AuditLogsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">操作稽核日誌 <span className="text-sm text-gray-400">({total})</span></h1>
+        <h1 className="text-xl font-semibold">操作稽核日誌 <span className="text-sm text-muted-foreground">({total})</span></h1>
         <div className="flex gap-2">
-          <Input
-            placeholder="搜尋資源..."
-            value={resource}
-            onChange={(e) => setResource(e.target.value)}
-            startContent={<Search size={14} />}
-            size="sm"
-            className="w-48"
-          />
+          <div className="relative w-48">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="搜尋資源..."
+              value={resource}
+              onChange={(e) => setResource(e.target.value)}
+              className="pl-8 h-9"
+            />
+          </div>
           <Button size="sm" onClick={load}>查詢</Button>
         </div>
       </div>
-      <Table aria-label="audit-logs" isStriped>
-        <TableHeader>
-          <TableColumn>時間</TableColumn>
-          <TableColumn>操作者</TableColumn>
-          <TableColumn>動作</TableColumn>
-          <TableColumn>資源</TableColumn>
-          <TableColumn>ID</TableColumn>
-          <TableColumn>IP</TableColumn>
-        </TableHeader>
-        <TableBody isLoading={loading} items={logs}>
-          {(log) => (
-            <TableRow key={log.id}>
-              <TableCell className="text-xs text-gray-500 whitespace-nowrap">
-                {new Date(log.created_at).toLocaleString('zh-TW')}
-              </TableCell>
-              <TableCell>{log.username}</TableCell>
-              <TableCell>
-                <Chip size="sm" color={actionColors[log.action] ?? 'default'} variant="flat">
-                  {log.action}
-                </Chip>
-              </TableCell>
-              <TableCell className="font-mono text-xs">{log.resource}</TableCell>
-              <TableCell className="text-xs">{log.resource_id}</TableCell>
-              <TableCell className="text-xs text-gray-500">{log.ip}</TableCell>
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>時間</TableHead>
+              <TableHead>操作者</TableHead>
+              <TableHead>動作</TableHead>
+              <TableHead>資源</TableHead>
+              <TableHead>ID</TableHead>
+              <TableHead>IP</TableHead>
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {logs.map((log) => (
+              <TableRow key={log.id}>
+                <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                  {new Date(log.created_at).toLocaleString('zh-TW')}
+                </TableCell>
+                <TableCell>{log.username}</TableCell>
+                <TableCell>
+                  <Badge variant={actionVariant[log.action] ?? 'outline'}>
+                    {log.action}
+                  </Badge>
+                </TableCell>
+                <TableCell className="font-mono text-xs">{log.resource}</TableCell>
+                <TableCell className="text-xs">{log.resource_id}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">{log.ip}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   )
 }

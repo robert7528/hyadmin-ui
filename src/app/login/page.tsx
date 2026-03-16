@@ -2,7 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button, Card, CardBody, CardHeader, Input } from '@heroui/react'
+import { Loader2 } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 import { authApi, setToken } from '@/lib/api'
 import { usePermission } from '@/contexts/permission-context'
 import { useModules } from '@/contexts/module-context'
@@ -35,39 +39,49 @@ export default function LoginPage() {
   return (
     <Card className="w-full max-w-sm shadow-lg">
       <CardHeader className="flex flex-col items-center pb-0 pt-6">
-        <h1 className="text-2xl font-bold text-primary">HySP Admin</h1>
-        <p className="text-sm text-gray-500 mt-1">管理員登入</p>
+        <CardTitle className="text-2xl font-bold text-primary">HySP Admin</CardTitle>
+        <CardDescription className="mt-1">管理員登入</CardDescription>
       </CardHeader>
-      <CardBody className="px-6 pb-6 pt-4">
+      <CardContent className="px-6 pb-6 pt-4">
         <form onSubmit={handleLogin} className="space-y-4">
-          <Input
-            label="租戶代碼"
-            placeholder="tenant_code"
-            value={form.tenant_code}
-            onChange={(e) => setForm({ ...form, tenant_code: e.target.value })}
-            isRequired
-          />
-          <Input
-            label="帳號"
-            placeholder="username"
-            value={form.username}
-            onChange={(e) => setForm({ ...form, username: e.target.value })}
-            isRequired
-          />
-          <Input
-            label="密碼"
-            type="password"
-            placeholder="password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            isRequired
-          />
-          {error && <p className="text-sm text-danger">{error}</p>}
-          <Button type="submit" color="primary" className="w-full" isLoading={loading}>
+          <div className="space-y-2">
+            <Label htmlFor="tenant_code">租戶代碼</Label>
+            <Input
+              id="tenant_code"
+              placeholder="tenant_code"
+              value={form.tenant_code}
+              onChange={(e) => setForm({ ...form, tenant_code: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="username">帳號</Label>
+            <Input
+              id="username"
+              placeholder="username"
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">密碼</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              required
+            />
+          </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             登入
           </Button>
         </form>
-      </CardBody>
+      </CardContent>
     </Card>
   )
 }

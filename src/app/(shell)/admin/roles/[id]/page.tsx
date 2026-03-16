@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Button, Checkbox, Chip, Spinner } from '@heroui/react'
+import { Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
 import { adminRolesApi, adminModulesApi, adminFeaturesApi } from '@/lib/api'
 import type { Role } from '@/types/role'
 import type { Module } from '@/types/module'
@@ -74,16 +77,21 @@ export default function RolePermissionsPage() {
     }
   }
 
-  if (loading) return <div className="flex justify-center py-12"><Spinner /></div>
+  if (loading) return (
+    <div className="flex justify-center py-12">
+      <Loader2 className="h-6 w-6 animate-spin" />
+    </div>
+  )
 
   return (
     <div className="space-y-4 max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold">角色授權設定</h1>
-          {role && <p className="text-gray-500 text-sm mt-0.5">{role.name}</p>}
+          {role && <p className="text-muted-foreground text-sm mt-0.5">{role.name}</p>}
         </div>
-        <Button color="primary" size="sm" isLoading={saving} onClick={handleSave}>
+        <Button size="sm" disabled={saving} onClick={handleSave}>
+          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           儲存
         </Button>
       </div>
@@ -91,28 +99,29 @@ export default function RolePermissionsPage() {
       <div className="border rounded-lg divide-y">
         {tree.map((mod) => (
           <div key={mod.id} className="p-4">
-            <p className="font-semibold text-gray-700 mb-3">{mod.display_name}</p>
+            <p className="font-semibold text-foreground mb-3">{mod.display_name}</p>
             <div className="space-y-3">
               {mod.features.map((feat) => (
                 <div key={feat.id}>
-                  <p className="text-sm font-medium text-gray-600 mb-2">{feat.display_name}</p>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">{feat.display_name}</p>
                   <div className="flex flex-wrap gap-3">
                     {feat.permissions.map((perm) => (
                       <div key={perm.id} className="flex items-center gap-1.5">
                         <Checkbox
-                          size="sm"
-                          isSelected={selectedCodes.has(perm.code)}
-                          onValueChange={() => toggle(perm.code)}
-                        >
-                          <span className="text-sm">{perm.name}</span>
-                        </Checkbox>
-                        <Chip size="sm" variant="flat" className="text-xs">
+                          id={`perm-${perm.id}`}
+                          checked={selectedCodes.has(perm.code)}
+                          onCheckedChange={() => toggle(perm.code)}
+                        />
+                        <label htmlFor={`perm-${perm.id}`} className="text-sm cursor-pointer">
+                          {perm.name}
+                        </label>
+                        <Badge variant="secondary" className="text-xs">
                           {perm.type}
-                        </Chip>
+                        </Badge>
                       </div>
                     ))}
                     {feat.permissions.length === 0 && (
-                      <p className="text-xs text-gray-400">（無授權點）</p>
+                      <p className="text-xs text-muted-foreground">（無授權點）</p>
                     )}
                   </div>
                 </div>

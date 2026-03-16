@@ -1,28 +1,26 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import {
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  Button,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-} from '@heroui/react'
-import { ChevronDown, LayoutGrid, LogOut } from 'lucide-react'
+import { useRouter, usePathname } from 'next/navigation'
+import { MoreHorizontal, LogOut, Menu, User } from 'lucide-react'
 import { useModules } from '@/contexts/module-context'
 import { usePermission } from '@/contexts/permission-context'
 import { clearToken } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
+import Link from 'next/link'
 
 /** Approx width reserved for Brand + End section + padding */
 const RESERVED_WIDTH = 320
-/** Width of the "應用程式" dropdown button (px) */
-const DROPDOWN_WIDTH = 130
+/** Width of the overflow "..." dropdown button (px) */
+const DROPDOWN_WIDTH = 50
 /** Horizontal padding per tab (px-3 = 12px * 2) + gap */
 const TAB_PADDING = 28
 
@@ -76,8 +74,13 @@ function useMaxVisibleTabs(modules: { display_name: string }[]) {
   return maxVisible
 }
 
-export function Header() {
+interface HeaderProps {
+  onMenuClick?: () => void
+}
+
+export function Header({ onMenuClick }: HeaderProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const { modules, selectedModule, loadModules, selectModule } = useModules()
   const { loadPermissions } = usePermission()
   const [loaded, setLoaded] = useState(false)
@@ -94,10 +97,16 @@ export function Header() {
   const visibleModules = modules.slice(0, maxVisible)
   const overflowModules = modules.slice(maxVisible)
 
+  const isAdmin = pathname.startsWith('/admin') || pathname.startsWith('/hyadmin/admin')
+
   const handleSelectModule = (mod: (typeof modules)[0]) => {
     selectModule(mod).then(() => {
       router.push(`/app/${mod.route}`)
     })
+  }
+
+  const handleAdminClick = () => {
+    router.push('/admin/users')
   }
 
   const handleLogout = async () => {
@@ -106,60 +115,97 @@ export function Header() {
   }
 
   return (
-    <Navbar isBordered className="bg-white shadow-sm">
-      <NavbarBrand>
-        <span className="font-bold text-lg text-primary">HySP Admin</span>
-      </NavbarBrand>
+    <header className="sticky top-0 z-50 flex h-14 items-center border-b bg-background px-4">
+      {/* Mobile menu button */}
+      {onMenuClick && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden mr-2 h-8 w-8"
+          onClick={onMenuClick}
+        >
+          <Menu size={16} />
+        </Button>
+      )}
 
-      <NavbarContent className="flex gap-1" justify="center">
-        {visibleModules.map((mod) => (
-          <NavbarItem key={mod.id}>
-            <button
-              onClick={() => handleSelectModule(mod)}
+      {/* Left: Logo */}
+      <Link
+        href="/"
+        className="flex items-center gap-2 font-semibold text-primary mr-4 shrink-0"
+      >
+        HySP Console
+      </Link>
+
+      {/* Center: Module tabs */}
+      <div className="flex-1 flex items-center gap-1 overflow-hidden min-w-0">
+        {visibleModules.map((mod) => {
+          const active = selectedModule?.id === mod.id && !isAdmin
+          return (
+            <Button
+              key={mod.id}
+              variant={active ? 'secondary' : 'ghost'}
+              size="sm"
               className={cn(
-                'px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap',
-                selectedModule?.id === mod.id
-                  ? 'bg-primary text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
+                'shrink-0 whitespace-nowrap',
+                active && 'font-semibold'
               )}
+              onClick={() => handleSelectModule(mod)}
             >
               {mod.display_name}
-            </button>
-          </NavbarItem>
-        ))}
+            </Button>
+          )
+        })}
 
         {overflowModules.length > 0 && (
-          <NavbarItem>
-            <Dropdown>
-              <DropdownTrigger>
-                <Button variant="light" size="sm" startContent={<LayoutGrid size={14} />} endContent={<ChevronDown size={14} />}>
-                  應用程式
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu aria-label="More modules">
-                {overflowModules.map((mod) => (
-                  <DropdownItem key={mod.id} onClick={() => handleSelectModule(mod)}>
-                    {mod.display_name}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-          </NavbarItem>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="shrink-0">
+                <MoreHorizontal size={16} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {overflowModules.map((mod) => (
+                <DropdownMenuItem
+                  key={mod.id}
+                  onClick={() => handleSelectModule(mod)}
+                >
+                  {mod.display_name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
-      </NavbarContent>
 
-      <NavbarContent justify="end">
-        <NavbarItem>
-          <Button
-            variant="light"
-            size="sm"
-            startContent={<LogOut size={14} />}
-            onClick={handleLogout}
-          >
-            登出
+        {/* Admin pseudo-tab */}
+        <Button
+          variant={isAdmin ? 'secondary' : 'ghost'}
+          size="sm"
+          className={cn('shrink-0 whitespace-nowrap', isAdmin && 'font-semibold')}
+          onClick={handleAdminClick}
+        >
+          系統管理
+        </Button>
+      </div>
+
+      {/* Right: User menu */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="sm" className="ml-2 shrink-0 gap-1.5">
+            <User size={16} />
+            <span className="hidden sm:inline">admin</span>
           </Button>
-        </NavbarItem>
-      </NavbarContent>
-    </Navbar>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => router.push('/admin/profile')}>
+            個人設定
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleLogout}>
+            <LogOut size={14} className="mr-2" />
+            登出
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </header>
   )
 }

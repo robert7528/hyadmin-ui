@@ -2,7 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button, Card, CardBody, Input, Textarea } from '@heroui/react'
+import { Loader2 } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
 import { adminRolesApi } from '@/lib/api'
 
 export default function NewRolePage() {
@@ -29,18 +34,30 @@ export default function NewRolePage() {
     <div className="max-w-md">
       <h1 className="text-xl font-semibold mb-4">新增角色</h1>
       <Card>
-        <CardBody>
+        <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-3">
-            <Input label="租戶代碼" value={form.tenant_code} onChange={(e) => setForm({ ...form, tenant_code: e.target.value })} isRequired />
-            <Input label="角色名稱" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} isRequired />
-            <Textarea label="說明" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-            {error && <p className="text-danger text-sm">{error}</p>}
+            <div className="space-y-2">
+              <Label htmlFor="tenant_code">租戶代碼</Label>
+              <Input id="tenant_code" value={form.tenant_code} onChange={(e) => setForm({ ...form, tenant_code: e.target.value })} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">角色名稱</Label>
+              <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">說明</Label>
+              <Textarea id="description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            </div>
+            {error && <p className="text-destructive text-sm">{error}</p>}
             <div className="flex gap-2 pt-2">
-              <Button type="submit" color="primary" isLoading={saving}>建立</Button>
-              <Button variant="light" onClick={() => router.back()}>取消</Button>
+              <Button type="submit" disabled={saving}>
+                {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                建立
+              </Button>
+              <Button variant="ghost" type="button" onClick={() => router.back()}>取消</Button>
             </div>
           </form>
-        </CardBody>
+        </CardContent>
       </Card>
     </div>
   )

@@ -5,7 +5,7 @@ HySP Admin Platform — Next.js frontend Admin Shell.
 ## Tech Stack
 
 - Next.js 15 (App Router) + React 19 + TypeScript
-- HeroUI（layout shell）+ Shadcn/ui（components）+ Tailwind CSS
+- Shadcn/ui（Radix UI primitives）+ Tailwind CSS
 - micro-app（`@micro-zoe/micro-app`）微前端子應用載入
 - Bun（package manager + build）
 - Podman Quadlet + systemctl（部署）
@@ -24,7 +24,7 @@ bun dev
 ## Architecture
 
 ```
-layout.tsx                   ← Shell: HeroUI Provider + Header + Sidebar + Footer
+layout.tsx                   ← Shell: Providers + Header + Sidebar + Footer
 ├── /hyadmin/                ← Dashboard (page.tsx)
 └── /hyadmin/app/[...route]  ← micro-app 動態路由 (app-container.tsx)
 ```

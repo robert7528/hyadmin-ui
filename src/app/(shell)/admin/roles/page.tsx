@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { Plus, Settings, Trash2, Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
-  Button,
   Table,
   TableHeader,
-  TableColumn,
   TableBody,
   TableRow,
+  TableHead,
   TableCell,
-} from '@heroui/react'
-import { Plus, Settings, Trash2 } from 'lucide-react'
+} from '@/components/ui/table'
 import { adminRolesApi } from '@/lib/api'
 import type { Role } from '@/types/role'
 import { PermissionGuard } from '@/components/permission-guard'
@@ -43,40 +43,53 @@ export default function RolesPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">角色管理</h1>
         <PermissionGuard code="admin.roles.create">
-          <Button as={Link} href="/admin/roles/new" color="primary" startContent={<Plus size={16} />} size="sm">
-            新增角色
+          <Button size="sm" asChild>
+            <Link href="/admin/roles/new">
+              <Plus className="mr-2 h-4 w-4" />
+              新增角色
+            </Link>
           </Button>
         </PermissionGuard>
       </div>
-      <Table aria-label="roles" isStriped>
-        <TableHeader>
-          <TableColumn>角色名稱</TableColumn>
-          <TableColumn>說明</TableColumn>
-          <TableColumn>租戶</TableColumn>
-          <TableColumn>操作</TableColumn>
-        </TableHeader>
-        <TableBody isLoading={loading} items={roles}>
-          {(role) => (
-            <TableRow key={role.id}>
-              <TableCell className="font-medium">{role.name}</TableCell>
-              <TableCell className="text-gray-500">{role.description}</TableCell>
-              <TableCell>{role.tenant_code}</TableCell>
-              <TableCell>
-                <div className="flex gap-2">
-                  <Button as={Link} href={`/admin/roles/${role.id}`} isIconOnly size="sm" variant="light" title="設定授權">
-                    <Settings size={14} />
-                  </Button>
-                  <PermissionGuard code="admin.roles.delete">
-                    <Button isIconOnly size="sm" variant="light" color="danger" onClick={() => handleDelete(role.id)}>
-                      <Trash2 size={14} />
-                    </Button>
-                  </PermissionGuard>
-                </div>
-              </TableCell>
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>角色名稱</TableHead>
+              <TableHead>說明</TableHead>
+              <TableHead>租戶</TableHead>
+              <TableHead>操作</TableHead>
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {roles.map((role) => (
+              <TableRow key={role.id}>
+                <TableCell className="font-medium">{role.name}</TableCell>
+                <TableCell className="text-muted-foreground">{role.description}</TableCell>
+                <TableCell>{role.tenant_code}</TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="icon" title="設定授權" asChild>
+                      <Link href={`/admin/roles/${role.id}`}>
+                        <Settings className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                    <PermissionGuard code="admin.roles.delete">
+                      <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDelete(role.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </PermissionGuard>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   )
 }

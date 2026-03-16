@@ -2,12 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Button, Card, CardBody, Input, Switch, Divider } from '@heroui/react'
+import Link from 'next/link'
+import { Plus, Pencil, Loader2 } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
+import { Separator } from '@/components/ui/separator'
 import { adminModulesApi, adminFeaturesApi } from '@/lib/api'
 import type { Module } from '@/types/module'
 import type { Feature } from '@/types/feature'
-import { Plus, Pencil } from 'lucide-react'
-import Link from 'next/link'
 
 export default function EditModulePage() {
   const { id } = useParams<{ id: string }>()
@@ -39,43 +44,66 @@ export default function EditModulePage() {
     }
   }
 
-  if (!mod) return <p className="text-gray-400 text-sm">載入中...</p>
+  if (!mod) return <p className="text-muted-foreground text-sm">載入中...</p>
 
   return (
     <div className="max-w-lg space-y-4">
       <h1 className="text-xl font-semibold">編輯模組 — <span className="font-mono text-base">{mod.name}</span></h1>
       <Card>
-        <CardBody className="space-y-3">
-          <Input label="顯示名稱" value={mod.display_name} onChange={(e) => setMod({ ...mod, display_name: e.target.value })} />
-          <Input label="子應用 URL" value={mod.url} onChange={(e) => setMod({ ...mod, url: e.target.value })} />
-          <Input label="圖示" value={mod.icon} onChange={(e) => setMod({ ...mod, icon: e.target.value })} />
-          <Input label="說明" value={mod.description} onChange={(e) => setMod({ ...mod, description: e.target.value })} />
-          <Input label="排序" type="number" value={String(mod.sort_order)} onChange={(e) => setMod({ ...mod, sort_order: Number(e.target.value) })} />
+        <CardContent className="pt-6 space-y-3">
+          <div className="space-y-2">
+            <Label htmlFor="display_name">顯示名稱</Label>
+            <Input id="display_name" value={mod.display_name} onChange={(e) => setMod({ ...mod, display_name: e.target.value })} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="url">子應用 URL</Label>
+            <Input id="url" value={mod.url} onChange={(e) => setMod({ ...mod, url: e.target.value })} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="icon">圖示</Label>
+            <Input id="icon" value={mod.icon} onChange={(e) => setMod({ ...mod, icon: e.target.value })} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="description">說明</Label>
+            <Input id="description" value={mod.description} onChange={(e) => setMod({ ...mod, description: e.target.value })} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="sort_order">排序</Label>
+            <Input id="sort_order" type="number" value={String(mod.sort_order)} onChange={(e) => setMod({ ...mod, sort_order: Number(e.target.value) })} />
+          </div>
           <div className="flex items-center gap-2">
-            <Switch isSelected={mod.enabled} onValueChange={(v) => setMod({ ...mod, enabled: v })} />
+            <Switch checked={mod.enabled} onCheckedChange={(v) => setMod({ ...mod, enabled: v })} />
             <span className="text-sm">啟用</span>
           </div>
           <div className="flex gap-2 pt-2">
-            <Button color="primary" isLoading={saving} onClick={handleSave}>儲存</Button>
-            <Button variant="light" onClick={() => router.back()}>取消</Button>
+            <Button disabled={saving} onClick={handleSave}>
+              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              儲存
+            </Button>
+            <Button variant="ghost" onClick={() => router.back()}>取消</Button>
           </div>
-        </CardBody>
+        </CardContent>
       </Card>
 
-      <Divider />
+      <Separator />
       <div className="flex items-center justify-between">
         <h2 className="font-medium text-sm">功能列表</h2>
-        <Link href={`/admin/modules/${id}/features/new`}>
-          <Button size="sm" startContent={<Plus size={14} />}>新增功能</Button>
-        </Link>
+        <Button size="sm" asChild>
+          <Link href={`/admin/modules/${id}/features/new`}>
+            <Plus className="mr-2 h-4 w-4" />
+            新增功能
+          </Link>
+        </Button>
       </div>
       <div className="space-y-1">
         {features.map((f) => (
           <div key={f.id} className="flex items-center justify-between p-2 border rounded-md text-sm">
-            <span>{f.display_name} <span className="text-gray-400 font-mono text-xs">{f.path}</span></span>
-            <Link href={`/admin/features/${f.id}`}>
-              <Button isIconOnly size="sm" variant="light"><Pencil size={12} /></Button>
-            </Link>
+            <span>{f.display_name} <span className="text-muted-foreground font-mono text-xs">{f.path}</span></span>
+            <Button variant="ghost" size="icon" asChild>
+              <Link href={`/admin/features/${f.id}`}>
+                <Pencil className="h-3 w-3" />
+              </Link>
+            </Button>
           </div>
         ))}
       </div>
