@@ -13,6 +13,13 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 
+/** Map admin path segments to their sidebar group */
+const adminGroupMap: Record<string, string> = {
+  users: 'accounts',
+  roles: 'accounts',
+  modules: 'system',
+}
+
 export function AppBreadcrumb() {
   const pathname = usePathname()
   const { selectedModule, features } = useModules()
@@ -27,9 +34,13 @@ export function AppBreadcrumb() {
     new: t.breadcrumb.new,
   }
 
+  const groupLabels: Record<string, string> = {
+    accounts: t.sidebar.group_accounts,
+    system: t.sidebar.group_system,
+  }
+
   const segments = pathname.split('/').filter(Boolean)
 
-  // Build breadcrumb: Home -> Module -> Feature
   const crumbs: { label: string; href?: string }[] = [
     { label: t.breadcrumb.home, href: '/' },
   ]
@@ -45,9 +56,18 @@ export function AppBreadcrumb() {
     }
   } else if (segments.includes('admin')) {
     crumbs.push({ label: t.breadcrumb.admin })
+
     const adminSeg = segments[segments.indexOf('admin') + 1]
-    if (adminSeg && adminLabels[adminSeg]) {
-      crumbs.push({ label: adminLabels[adminSeg] })
+    if (adminSeg) {
+      // Add group level (Accounts / System)
+      const groupKey = adminGroupMap[adminSeg]
+      if (groupKey && groupLabels[groupKey]) {
+        crumbs.push({ label: groupLabels[groupKey] })
+      }
+      // Add page level
+      if (adminLabels[adminSeg]) {
+        crumbs.push({ label: adminLabels[adminSeg] })
+      }
     }
   }
 

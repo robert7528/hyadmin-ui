@@ -138,6 +138,14 @@ const zhTW = {
     go_home: '回首頁',
     module_not_found: '模組未找到或未啟用。',
   },
+  /** 模組顯示名稱（暫用靜態對照，之後改 DB-driven i18n） */
+  module_names: {
+    tenant: '租戶管理',
+    user: '使用者管理',
+    permission: '權限管理',
+    audit: '稽核日誌',
+    config: '系統設定',
+  } as Record<string, string>,
 } as const
 
 export default zhTW

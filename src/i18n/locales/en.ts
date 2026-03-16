@@ -138,6 +138,14 @@ const en = {
     go_home: 'Go Home',
     module_not_found: 'Module not found or disabled.',
   },
+  /** Module display names (temporary static map, will migrate to DB-driven i18n) */
+  module_names: {
+    tenant: 'Tenants',
+    user: 'Users',
+    permission: 'Permissions',
+    audit: 'Audit Logs',
+    config: 'Settings',
+  } as Record<string, string>,
 } as const
 
 export default en

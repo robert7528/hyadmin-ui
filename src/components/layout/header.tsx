@@ -164,7 +164,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               )}
               onClick={() => handleSelectModule(mod)}
             >
-              {mod.display_name}
+              {t.module_names[mod.name] ?? mod.display_name}
             </Button>
           )
         })}
@@ -182,7 +182,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                   key={mod.id}
                   onClick={() => handleSelectModule(mod)}
                 >
-                  {mod.display_name}
+                  {t.module_names[mod.name] ?? mod.display_name}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
