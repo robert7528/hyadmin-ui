@@ -26,6 +26,8 @@ const zhTW = {
     logout: '登出',
   },
   sidebar: {
+    group_accounts: '帳號權限',
+    group_system: '系統設定',
     users: '使用者管理',
     roles: '角色管理',
     modules: '模組管理',

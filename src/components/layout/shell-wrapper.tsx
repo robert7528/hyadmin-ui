@@ -26,13 +26,13 @@ export function ShellWrapper({ children }: { children: React.ReactNode }) {
       <Header onMenuClick={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop sidebar */}
-        <aside className="hidden md:flex w-56 flex-col border-r bg-background shrink-0">
+        <aside className="hidden md:flex w-60 flex-col border-r bg-background shrink-0">
           <Sidebar />
         </aside>
 
         {/* Mobile sidebar as Sheet */}
         <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
-          <SheetContent side="left" className="w-56 p-0">
+          <SheetContent side="left" className="w-60 p-0">
             <Sidebar />
           </SheetContent>
         </Sheet>

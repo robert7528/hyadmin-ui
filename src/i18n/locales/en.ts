@@ -26,6 +26,8 @@ const en = {
     logout: 'Logout',
   },
   sidebar: {
+    group_accounts: 'Accounts',
+    group_system: 'System',
     users: 'Users',
     roles: 'Roles',
     modules: 'Modules',

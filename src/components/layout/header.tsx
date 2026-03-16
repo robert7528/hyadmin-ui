@@ -132,15 +132,22 @@ export function Header({ onMenuClick }: HeaderProps) {
         </Button>
       )}
 
-      {/* Left: Logo */}
+      {/* Left: Logo — fixed width to align with sidebar */}
+      <div className="hidden md:flex w-60 shrink-0 items-center border-r mr-4 -ml-4 pl-4 h-full">
+        <Link
+          href="/"
+          className="flex items-center gap-2 font-semibold text-primary"
+        >
+          HySP Console
+        </Link>
+      </div>
+      {/* Mobile: Logo without fixed width */}
       <Link
         href="/"
-        className="flex items-center gap-2 font-semibold text-primary mr-4 shrink-0"
+        className="md:hidden flex items-center gap-2 font-semibold text-primary mr-2 shrink-0"
       >
         HySP Console
       </Link>
-
-      <Separator orientation="vertical" className="h-6 mx-2" />
 
       {/* Center: Module tabs */}
       <div className="flex-1 flex items-center gap-1 overflow-hidden min-w-0">
