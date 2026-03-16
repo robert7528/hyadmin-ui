@@ -140,11 +140,11 @@ const en = {
   },
   /** Module display names (temporary static map, will migrate to DB-driven i18n) */
   module_names: {
-    tenant: 'Tenants',
-    user: 'Users',
-    permission: 'Permissions',
+    tenants: 'Tenants',
+    users: 'Users',
+    rbac: 'Permissions',
     audit: 'Audit Logs',
-    config: 'Settings',
+    settings: 'Settings',
   } as Record<string, string>,
 } as const
 

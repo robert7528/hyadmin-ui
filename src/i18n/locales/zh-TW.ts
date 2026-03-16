@@ -140,11 +140,11 @@ const zhTW = {
   },
   /** 模組顯示名稱（暫用靜態對照，之後改 DB-driven i18n） */
   module_names: {
-    tenant: '租戶管理',
-    user: '使用者管理',
-    permission: '權限管理',
+    tenants: '租戶管理',
+    users: '使用者管理',
+    rbac: '權限管理',
     audit: '稽核日誌',
-    config: '系統設定',
+    settings: '系統設定',
   } as Record<string, string>,
 } as const
 
