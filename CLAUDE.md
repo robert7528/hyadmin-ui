@@ -30,6 +30,10 @@ hyadmin-ui/
 │   │   │   ├── breadcrumb.tsx      # 麵包屑導航
 │   │   │   ├── shell-wrapper.tsx   # Header + Sidebar + main 整合
 │   │   │   └── footer.tsx
+│   │   ├── cert/
+│   │   │   ├── cert-router.tsx     # 憑證模組路由（toolbox / list）
+│   │   │   ├── toolbox.tsx         # 憑證工具箱（verify / parse / convert / CSR）
+│   │   │   └── cert-list.tsx       # 憑證列表（P2 placeholder）
 │   │   ├── micro-app/
 │   │   │   └── app-container.tsx   # <micro-app> 自訂元素容器
 │   │   └── ui/                     # Shadcn/ui 組件
@@ -40,6 +44,7 @@ hyadmin-ui/
 │   │   └── use-idle-timeout.ts     # 閒置自動登出
 │   ├── lib/
 │   │   ├── api.ts                  # apiFetch + 各資源 API client
+│   │   ├── cert-api.ts             # hycert-api client（utility endpoints）
 │   │   ├── utils.ts                # cn() helper（clsx + tailwind-merge）
 │   │   └── micro-app.ts            # fetchModules() + initMicroApp()
 │   └── types/                      # TypeScript interfaces
@@ -97,6 +102,7 @@ bunx shadcn@latest add button
 | 變數 | 預設值 | 說明 |
 |------|--------|------|
 | `NEXT_PUBLIC_API_URL` | `http://localhost:8080` | hyadmin-api base URL（build-time） |
+| `NEXT_PUBLIC_CERT_API_URL` | `http://localhost:8082` | hycert-api base URL（build-time） |
 | `NEXT_PUBLIC_TENANT_ID` | `default` | Tenant ID for API requests（build-time） |
 
 本地開發：複製 `.env.local.example` → `.env.local`
