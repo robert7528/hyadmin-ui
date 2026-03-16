@@ -16,14 +16,41 @@ import { certUtilityApi, type VerifyResponse, type ParseResponse, type ConvertRe
 type Tool = 'verify' | 'parse' | 'convert' | 'generate-csr'
 
 const CERT_ACCEPT = '.pem,.cer,.crt,.der,.pfx,.p12,.key,.csr'
+const BINARY_EXTS = ['.pfx', '.p12', '.der', '.cer']
+
+function isBinaryFile(filename: string): boolean {
+  const lower = filename.toLowerCase()
+  return BINARY_EXTS.some((ext) => lower.endsWith(ext))
+}
+
+function detectInputType(filename: string): string {
+  const lower = filename.toLowerCase()
+  if (lower.endsWith('.pfx') || lower.endsWith('.p12')) return 'pfx_base64'
+  if (lower.endsWith('.der')) return 'der_base64'
+  // .cer could be DER or PEM — check content later, default to auto
+  return ''
+}
 
 function readFileAsText(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => resolve(reader.result as string)
     reader.onerror = reject
-    // Binary formats (DER, PFX) won't produce valid text, but the API handles base64 too
     reader.readAsText(file)
+  })
+}
+
+function readFileAsBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUrl = reader.result as string
+      // Strip "data:...;base64," prefix
+      const base64 = dataUrl.split(',')[1] ?? ''
+      resolve(base64)
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
   })
 }
 
@@ -37,13 +64,21 @@ function downloadTextFile(content: string, filename: string) {
   URL.revokeObjectURL(url)
 }
 
-function FileUploadButton({ onLoad, accept, label }: { onLoad: (content: string, filename: string) => void; accept?: string; label: string }) {
+interface FileUploadResult {
+  content: string
+  filename: string
+  inputType: string // '' for text, 'pfx_base64' or 'der_base64' for binary
+}
+
+function FileUploadButton({ onLoad, accept, label }: { onLoad: (result: FileUploadResult) => void; accept?: string; label: string }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const handleChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const text = await readFileAsText(file)
-    onLoad(text, file.name)
+    const binary = isBinaryFile(file.name)
+    const content = binary ? await readFileAsBase64(file) : await readFileAsText(file)
+    const inputType = binary ? detectInputType(file.name) : ''
+    onLoad({ content, filename: file.name, inputType })
     if (inputRef.current) inputRef.current.value = ''
   }, [onLoad])
 
@@ -135,7 +170,7 @@ function VerifyTool() {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label>{ct.certificate_pem}</Label>
-              <FileUploadButton accept=".pem,.cer,.crt" label={ct.upload_file} onLoad={(text) => setCert(text)} />
+              <FileUploadButton accept=".pem,.cer,.crt" label={ct.upload_file} onLoad={(r) => setCert(r.content)} />
             </div>
             <Textarea
               rows={10}
@@ -148,7 +183,7 @@ function VerifyTool() {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label>{ct.private_key_optional}</Label>
-              <FileUploadButton accept=".key,.pem" label={ct.upload_file} onLoad={(text) => setPrivateKey(text)} />
+              <FileUploadButton accept=".key,.pem" label={ct.upload_file} onLoad={(r) => setPrivateKey(r.content)} />
             </div>
             <Textarea
               rows={4}
@@ -246,9 +281,21 @@ function ParseTool() {
   const { t } = useLocale()
   const ct = t.cert_toolbox
   const [input, setInput] = useState('')
+  const [inputType, setInputType] = useState('')
+  const [password, setPassword] = useState('')
+  const [uploadedFilename, setUploadedFilename] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState<ParseResponse | null>(null)
+
+  const isPfx = inputType === 'pfx_base64'
+
+  const handleFileUpload = (r: FileUploadResult) => {
+    setInput(r.content)
+    setInputType(r.inputType)
+    setUploadedFilename(r.filename)
+    if (!r.inputType) setPassword('')
+  }
 
   const handleParse = async () => {
     if (!input.trim()) return
@@ -256,7 +303,11 @@ function ParseTool() {
     setError('')
     setResult(null)
     try {
-      const res = await certUtilityApi.parse({ input })
+      const res = await certUtilityApi.parse({
+        input,
+        input_type: inputType || undefined,
+        password: password || undefined,
+      })
       setResult(res.data)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Unknown error')
@@ -276,16 +327,31 @@ function ParseTool() {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label>{ct.certificate_pem}</Label>
-              <FileUploadButton label={ct.upload_file} onLoad={(text) => setInput(text)} />
+              <FileUploadButton label={ct.upload_file} onLoad={handleFileUpload} />
             </div>
-            <Textarea
-              rows={12}
-              placeholder="-----BEGIN CERTIFICATE-----"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="font-mono text-xs"
-            />
+            {isPfx && uploadedFilename ? (
+              <div className="rounded-md border p-3 text-sm text-muted-foreground font-mono">{uploadedFilename}</div>
+            ) : (
+              <Textarea
+                rows={12}
+                placeholder="-----BEGIN CERTIFICATE-----"
+                value={input}
+                onChange={(e) => { setInput(e.target.value); setInputType(''); setUploadedFilename('') }}
+                className="font-mono text-xs"
+              />
+            )}
           </div>
+          {isPfx && (
+            <div className="space-y-1.5">
+              <Label>{ct.pfx_password}</Label>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={ct.pfx_password_placeholder}
+              />
+            </div>
+          )}
           <Button onClick={handleParse} disabled={loading || !input.trim()} className="w-full">
             {loading && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
             {ct.run_parse}
@@ -396,7 +462,7 @@ function ConvertTool() {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label>{ct.certificate_pem}</Label>
-              <FileUploadButton accept=".pem,.cer,.crt" label={ct.upload_file} onLoad={(text) => setCert(text)} />
+              <FileUploadButton accept=".pem,.cer,.crt" label={ct.upload_file} onLoad={(r) => setCert(r.content)} />
             </div>
             <Textarea
               rows={8}
@@ -409,7 +475,7 @@ function ConvertTool() {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label>{ct.private_key_optional}</Label>
-              <FileUploadButton accept=".key,.pem" label={ct.upload_file} onLoad={(text) => setPrivateKey(text)} />
+              <FileUploadButton accept=".key,.pem" label={ct.upload_file} onLoad={(r) => setPrivateKey(r.content)} />
             </div>
             <Textarea
               rows={4}
