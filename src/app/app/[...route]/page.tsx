@@ -14,7 +14,7 @@ const nativeModules: Record<string, React.ComponentType> = {
 export default function AppPage() {
   const params = useParams()
   const pathname = usePathname()
-  const route = Array.isArray(params.route) ? params.route[0] : params.route
+  const route = (Array.isArray(params.route) ? params.route[0] : params.route) ?? ''
   const { modules } = useModules()
   const { t } = useLocale()
 
