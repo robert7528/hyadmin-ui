@@ -45,16 +45,9 @@ export function AppBreadcrumb() {
     { label: t.breadcrumb.home, href: '/' },
   ]
 
-  if (selectedModule) {
-    crumbs.push({ label: selectedModule.display_name })
-    const matchedFeature = features.find((f) => {
-      const href = `/app/${selectedModule.route}${f.path}`
-      return pathname === href || pathname.startsWith(href + '/')
-    })
-    if (matchedFeature) {
-      crumbs.push({ label: matchedFeature.display_name })
-    }
-  } else if (segments.includes('admin')) {
+  const isAdminRoute = segments.includes('admin') || segments.includes('profile')
+
+  if (isAdminRoute) {
     crumbs.push({ label: t.breadcrumb.admin })
 
     const adminSeg = segments[segments.indexOf('admin') + 1]
@@ -68,6 +61,15 @@ export function AppBreadcrumb() {
       if (adminLabels[adminSeg]) {
         crumbs.push({ label: adminLabels[adminSeg] })
       }
+    }
+  } else if (selectedModule) {
+    crumbs.push({ label: selectedModule.display_name })
+    const matchedFeature = features.find((f) => {
+      const href = `/app/${selectedModule.route}${f.path}`
+      return pathname === href || pathname.startsWith(href + '/')
+    })
+    if (matchedFeature) {
+      crumbs.push({ label: matchedFeature.display_name })
     }
   }
 
