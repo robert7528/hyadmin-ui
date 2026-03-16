@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useLocale } from '@/contexts/locale-context'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -10,10 +10,53 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { Loader2, ShieldCheck, FileSearch, ArrowRightLeft, FileKey } from 'lucide-react'
+import { Loader2, ShieldCheck, FileSearch, ArrowRightLeft, FileKey, Upload, Download } from 'lucide-react'
 import { certUtilityApi, type VerifyResponse, type ParseResponse, type ConvertResponse, type GenerateCSRResponse } from '@/lib/cert-api'
 
 type Tool = 'verify' | 'parse' | 'convert' | 'generate-csr'
+
+const CERT_ACCEPT = '.pem,.cer,.crt,.der,.pfx,.p12,.key,.csr'
+
+function readFileAsText(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = reject
+    // Binary formats (DER, PFX) won't produce valid text, but the API handles base64 too
+    reader.readAsText(file)
+  })
+}
+
+function downloadTextFile(content: string, filename: string) {
+  const blob = new Blob([content], { type: 'text/plain' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function FileUploadButton({ onLoad, accept, label }: { onLoad: (content: string, filename: string) => void; accept?: string; label: string }) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const handleChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const text = await readFileAsText(file)
+    onLoad(text, file.name)
+    if (inputRef.current) inputRef.current.value = ''
+  }, [onLoad])
+
+  return (
+    <>
+      <input ref={inputRef} type="file" accept={accept ?? CERT_ACCEPT} onChange={handleChange} className="hidden" />
+      <Button type="button" variant="outline" size="sm" onClick={() => inputRef.current?.click()} className="gap-1.5">
+        <Upload className="h-3.5 w-3.5" />
+        {label}
+      </Button>
+    </>
+  )
+}
 
 export function CertToolbox() {
   const { t } = useLocale()
@@ -90,7 +133,10 @@ function VerifyTool() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-1.5">
-            <Label>{ct.certificate_pem}</Label>
+            <div className="flex items-center justify-between">
+              <Label>{ct.certificate_pem}</Label>
+              <FileUploadButton accept=".pem,.cer,.crt" label={ct.upload_file} onLoad={(text) => setCert(text)} />
+            </div>
             <Textarea
               rows={10}
               placeholder="-----BEGIN CERTIFICATE-----"
@@ -100,7 +146,10 @@ function VerifyTool() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label>{ct.private_key_optional}</Label>
+            <div className="flex items-center justify-between">
+              <Label>{ct.private_key_optional}</Label>
+              <FileUploadButton accept=".key,.pem" label={ct.upload_file} onLoad={(text) => setPrivateKey(text)} />
+            </div>
             <Textarea
               rows={4}
               placeholder="-----BEGIN PRIVATE KEY-----"
@@ -225,7 +274,10 @@ function ParseTool() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-1.5">
-            <Label>{ct.certificate_pem}</Label>
+            <div className="flex items-center justify-between">
+              <Label>{ct.certificate_pem}</Label>
+              <FileUploadButton label={ct.upload_file} onLoad={(text) => setInput(text)} />
+            </div>
             <Textarea
               rows={12}
               placeholder="-----BEGIN CERTIFICATE-----"
@@ -342,7 +394,10 @@ function ConvertTool() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-1.5">
-            <Label>{ct.certificate_pem}</Label>
+            <div className="flex items-center justify-between">
+              <Label>{ct.certificate_pem}</Label>
+              <FileUploadButton accept=".pem,.cer,.crt" label={ct.upload_file} onLoad={(text) => setCert(text)} />
+            </div>
             <Textarea
               rows={8}
               placeholder="-----BEGIN CERTIFICATE-----"
@@ -352,7 +407,10 @@ function ConvertTool() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label>{ct.private_key_optional}</Label>
+            <div className="flex items-center justify-between">
+              <Label>{ct.private_key_optional}</Label>
+              <FileUploadButton accept=".key,.pem" label={ct.upload_file} onLoad={(text) => setPrivateKey(text)} />
+            </div>
             <Textarea
               rows={4}
               placeholder="-----BEGIN PRIVATE KEY-----"
@@ -544,18 +602,30 @@ function GenerateCSRTool() {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label>CSR (PEM)</Label>
-                <Button variant="ghost" size="sm" onClick={() => copyToClipboard(result.csr_pem)}>
-                  {ct.copy}
-                </Button>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => copyToClipboard(result.csr_pem)}>
+                    {ct.copy}
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => downloadTextFile(result.csr_pem, `${domain || 'certificate'}.csr`)} className="gap-1">
+                    <Download className="h-3.5 w-3.5" />
+                    .csr
+                  </Button>
+                </div>
               </div>
               <Textarea readOnly rows={8} value={result.csr_pem} className="font-mono text-xs" />
             </div>
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label>{ct.private_key_label}</Label>
-                <Button variant="ghost" size="sm" onClick={() => copyToClipboard(result.private_key_pem)}>
-                  {ct.copy}
-                </Button>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => copyToClipboard(result.private_key_pem)}>
+                    {ct.copy}
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => downloadTextFile(result.private_key_pem, `${domain || 'certificate'}.key`)} className="gap-1">
+                    <Download className="h-3.5 w-3.5" />
+                    .key
+                  </Button>
+                </div>
               </div>
               <Textarea readOnly rows={8} value={result.private_key_pem} className="font-mono text-xs" />
             </div>

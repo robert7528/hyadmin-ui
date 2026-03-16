@@ -211,6 +211,7 @@ const zhTW = {
     key_type: '金鑰類型',
     key_size: '金鑰長度',
     copy: '複製',
+    upload_file: '上傳檔案',
     list_coming_soon: '憑證管理功能將於後續版本提供。',
   },
 } as const

@@ -211,6 +211,7 @@ const en = {
     key_type: 'Key Type',
     key_size: 'Key Size',
     copy: 'Copy',
+    upload_file: 'Upload',
     list_coming_soon: 'Certificate management will be available in a future update.',
   },
 } as const
