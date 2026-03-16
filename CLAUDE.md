@@ -73,13 +73,12 @@ hyadmin-ui/
 - 所有內部路由、`_next/static` 自動加前綴
 - nginx **不剝離**前綴（`proxy_pass http://127.0.0.1:3000`，無 trailing slash）
 
-### 環境變數（Build-time）
-- `NEXT_PUBLIC_*` 在 **build time 嵌入**，不能 runtime 注入
-- 需透過 `--build-arg` 傳入 Containerfile：
-  ```bash
-  export NEXT_PUBLIC_API_URL=https://your-domain/hyadmin-api
-  sudo bash deployment/deploy.sh
-  ```
+### API URL（相對路徑）
+- **不使用** `NEXT_PUBLIC_*` 環境變數，一份 image 到處部署
+- hyadmin-api：硬編碼 `/hyadmin-api`（`src/lib/api.ts`）
+- 模組 API：從 DB `hyadmin_modules.api_url` 欄位 runtime 讀取（如 `/hycert-api`）
+- 瀏覽器 `fetch('/hyadmin-api/...')` 自動解析為當前域名
+- 跨域部署：`api_url` 填完整 URL（如 `https://other-host.com/hycert-api`），API server 需開 CORS
 
 ### Layout 架構
 - **Header**: Logo + 模組水平 tabs（responsive overflow dropdown）+ 系統管理 tab + 使用者選單
@@ -97,15 +96,14 @@ hyadmin-ui/
 bunx shadcn@latest add button
 ```
 
-## Environment Variables
+## API URL 設定
 
-| 變數 | 預設值 | 說明 |
-|------|--------|------|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8080` | hyadmin-api base URL（build-time） |
-| `NEXT_PUBLIC_CERT_API_URL` | `http://localhost:8082` | hycert-api base URL（build-time） |
-| `NEXT_PUBLIC_TENANT_ID` | `default` | Tenant ID for API requests（build-time） |
+不使用 build-time 環境變數。所有 API URL 透過相對路徑或模組 `api_url` 欄位 runtime 解析：
 
-本地開發：複製 `.env.local.example` → `.env.local`
+| API | 來源 | 預設值 |
+|-----|------|--------|
+| hyadmin-api | 硬編碼（`src/lib/api.ts`） | `/hyadmin-api` |
+| 模組 API（如 hycert） | DB `hyadmin_modules.api_url` | `/hycert-api` |
 
 ## nginx
 
@@ -118,9 +116,8 @@ bunx shadcn@latest add button
 # 第一次
 git clone https://github.com/robert7528/hyadmin-ui.git /hysp/hyadmin-ui
 
-# 部署（API URL 若有變更先 export）
-export NEXT_PUBLIC_API_URL=https://your-domain/hyadmin-api
+# 部署（無需設環境變數，image 通用）
 sudo bash /hysp/hyadmin-ui/deployment/deploy.sh
-# 步驟：git pull → podman build（含 build-arg）
+# 步驟：git pull → podman pull image
 #        → Quadlet 安裝 → systemctl restart → nginx reload
 ```

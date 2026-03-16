@@ -13,39 +13,34 @@ HySP Admin Platform — Next.js frontend Admin Shell.
 ## Quick Start（本地開發）
 
 ```bash
-cp .env.local.example .env.local
-# 編輯 .env.local 填入 hyadmin-api URL
 bun install
 bun dev
 ```
 
 開啟 [http://localhost:3000/hyadmin](http://localhost:3000/hyadmin)（basePath = `/hyadmin`）。
 
+> 本地開發需透過 nginx 或 proxy 將 `/hyadmin-api` 代理到 hyadmin-api 服務。
+
 ## Architecture
 
 ```
 layout.tsx                   ← Shell: Providers + Header + Sidebar + Footer
 ├── /hyadmin/                ← Dashboard (page.tsx)
-└── /hyadmin/app/[...route]  ← micro-app 動態路由 (app-container.tsx)
+└── /hyadmin/app/[...route]  ← micro-app / native module 動態路由
 ```
 
-Sidebar 從 `GET /api/v1/modules` 動態取模組清單，點選後透過 `<micro-app>` 在 content area 載入子應用。
+Sidebar 從 `GET /api/v1/modules` 動態取模組清單，點選後透過 `<micro-app>` 或 native page 在 content area 載入子應用。
 
-## Environment Variables
+## API URL
 
-> `NEXT_PUBLIC_*` 為 **build-time** 變數，在編譯時嵌入，不能 runtime 注入。
+不使用 `NEXT_PUBLIC_*` 環境變數，一份 image 給所有客戶部署：
 
-| 變數 | 預設值 | 說明 |
-|------|--------|------|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8080` | hyadmin-api base URL |
-| `NEXT_PUBLIC_TENANT_ID` | `default` | Tenant ID for API requests |
+| API | 來源 | 預設值 |
+|-----|------|--------|
+| hyadmin-api | 硬編碼（`src/lib/api.ts`） | `/hyadmin-api` |
+| 模組 API（如 hycert） | DB `hyadmin_modules.api_url` | `/hycert-api` |
 
-生產部署需透過 `--build-arg` 傳入：
-
-```bash
-export NEXT_PUBLIC_API_URL=https://your-domain/hyadmin-api
-sudo bash deployment/deploy.sh
-```
+瀏覽器 `fetch('/hyadmin-api/...')` 自動解析為當前域名。跨域部署時 `api_url` 填完整 URL。
 
 ## Add Shadcn/ui Components
 
@@ -66,9 +61,8 @@ bun start
 # 第一次
 git clone https://github.com/robert7528/hyadmin-ui.git /hysp/hyadmin-ui
 
-# 部署（API URL 若有變更先 export）
-export NEXT_PUBLIC_API_URL=https://your-domain/hyadmin-api
+# 部署（無需設環境變數，image 通用）
 sudo bash /hysp/hyadmin-ui/deployment/deploy.sh
 ```
 
-`deploy.sh` 執行步驟：git pull → podman build（含 build-arg）→ Quadlet 安裝 → systemctl restart → nginx reload
+`deploy.sh` 執行步驟：git pull → podman pull image → Quadlet 安裝 → systemctl restart → nginx reload

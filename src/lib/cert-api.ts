@@ -1,6 +1,11 @@
 import { getToken, clearToken } from './api'
 
-const CERT_API_BASE = process.env.NEXT_PUBLIC_CERT_API_URL ?? 'http://localhost:8082'
+let _apiBase = '/hycert-api'
+
+/** Set the cert API base URL (called from module context with module.api_url) */
+export function setCertApiBase(base: string) {
+  if (base) _apiBase = base
+}
 
 interface ApiResponse<T> {
   success: boolean
@@ -18,7 +23,7 @@ async function certFetch<T>(path: string, init: RequestInit = {}): Promise<ApiRe
   }
   if (token) headers['Authorization'] = `Bearer ${token}`
 
-  const res = await fetch(`${CERT_API_BASE}${path}`, { ...init, headers })
+  const res = await fetch(`${_apiBase}${path}`, { ...init, headers })
 
   if (res.status === 401) {
     clearToken()

@@ -6,7 +6,7 @@ import type { AdminUser, CreateUserRequest, UpdateUserRequest } from '@/types/us
 import type { Role, CreateRoleRequest, UpdateRoleRequest } from '@/types/role'
 import type { Permission, CreatePermissionRequest, BatchCreatePermissionRequest } from '@/types/permission'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
+const API_BASE = '/hyadmin-api'
 const TOKEN_KEY = 'hyadmin_token'
 const TENANT_KEY = 'hyadmin_tenant'
 

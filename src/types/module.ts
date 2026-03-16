@@ -5,6 +5,7 @@ export interface Module {
   icon: string
   route: string
   url: string
+  api_url: string
   description: string
   sort_order: number
   enabled: boolean

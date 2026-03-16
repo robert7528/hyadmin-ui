@@ -2,8 +2,8 @@
 # HySP Admin UI - Deployment Script (pull from ghcr.io)
 # Usage: sudo bash /hysp/hyadmin-ui/deployment/deploy.sh
 #
-# NEXT_PUBLIC_* 變數在 CI 建立 image 時由 GitHub Variables 注入，
-# 部署時只需 pull image，不需要在此設定。
+# 不使用 NEXT_PUBLIC_* 環境變數，所有 API URL 以相對路徑 runtime 解析。
+# 一份 image 通用於所有部署環境。
 
 set -euo pipefail
 
