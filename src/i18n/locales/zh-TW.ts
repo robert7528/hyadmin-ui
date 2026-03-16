@@ -146,6 +146,13 @@ const zhTW = {
     audit: '稽核日誌',
     settings: '系統設定',
   } as Record<string, string>,
+  /** 功能顯示名稱（暫用靜態對照，之後改 DB-driven i18n） */
+  feature_names: {
+    'tenant-list': '租戶列表',
+    'user-list': '使用者列表',
+    'role-list': '角色管理',
+    'audit-log': '稽核日誌',
+  } as Record<string, string>,
 } as const
 
 export default zhTW

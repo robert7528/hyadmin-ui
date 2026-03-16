@@ -146,6 +146,13 @@ const en = {
     audit: 'Audit Logs',
     settings: 'Settings',
   } as Record<string, string>,
+  /** Feature display names (temporary static map, will migrate to DB-driven i18n) */
+  feature_names: {
+    'tenant-list': 'Tenant List',
+    'user-list': 'User List',
+    'role-list': 'Role Management',
+    'audit-log': 'Audit Log',
+  } as Record<string, string>,
 } as const
 
 export default en

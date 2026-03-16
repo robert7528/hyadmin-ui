@@ -63,13 +63,13 @@ export function AppBreadcrumb() {
       }
     }
   } else if (selectedModule) {
-    crumbs.push({ label: selectedModule.display_name })
+    crumbs.push({ label: t.module_names[selectedModule.name] ?? selectedModule.display_name })
     const matchedFeature = features.find((f) => {
       const href = `/app/${selectedModule.route}${f.path}`
       return pathname === href || pathname.startsWith(href + '/')
     })
     if (matchedFeature) {
-      crumbs.push({ label: matchedFeature.display_name })
+      crumbs.push({ label: t.feature_names[matchedFeature.name] ?? matchedFeature.display_name })
     }
   }
 

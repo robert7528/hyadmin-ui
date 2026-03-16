@@ -65,7 +65,7 @@ export function Sidebar() {
   const featureItems: MenuItem[] = features
     .filter((f) => f.enabled)
     .map((f) => ({
-      label: f.display_name,
+      label: t.feature_names[f.name] ?? f.display_name,
       href: selectedModule
         ? `/app/${selectedModule.route}${f.path}`
         : `/app${f.path}`,
@@ -74,7 +74,9 @@ export function Sidebar() {
 
   const sectionTitle = isAdmin
     ? t.header.admin
-    : selectedModule?.display_name
+    : selectedModule
+      ? (t.module_names[selectedModule.name] ?? selectedModule.display_name)
+      : undefined
 
   return (
     <div className="flex flex-col h-full">
