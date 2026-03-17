@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package.json bun.lock* ./
 RUN bun install --frozen-lockfile || bun install
 
-FROM oven/bun:1-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -13,7 +13,7 @@ COPY . .
 # No NEXT_PUBLIC_* build args needed — all API URLs use relative paths
 # resolved at runtime by the browser (e.g. /hyadmin-api, /hycert-api)
 
-RUN bun run build
+RUN node node_modules/.bin/next build
 
 FROM node:20-alpine AS runner
 
