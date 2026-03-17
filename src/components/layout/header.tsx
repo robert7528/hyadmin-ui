@@ -89,6 +89,9 @@ export function Header({ onMenuClick }: HeaderProps) {
   const { t, locale, setLocale } = useLocale()
   const [loaded, setLoaded] = useState(false)
 
+  const { nav } = t.hyadmin.header
+  const moduleNames = t.hyadmin.moduleNames.display
+
   const maxVisible = useMaxVisibleTabs(modules)
 
   useEffect(() => {
@@ -164,7 +167,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               )}
               onClick={() => handleSelectModule(mod)}
             >
-              {t.module_names[mod.name] ?? mod.display_name}
+              {moduleNames[mod.name] ?? mod.display_name}
             </Button>
           )
         })}
@@ -182,7 +185,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                   key={mod.id}
                   onClick={() => handleSelectModule(mod)}
                 >
-                  {t.module_names[mod.name] ?? mod.display_name}
+                  {moduleNames[mod.name] ?? mod.display_name}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -196,7 +199,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           className={cn('shrink-0 whitespace-nowrap', isAdmin && 'font-semibold')}
           onClick={handleAdminClick}
         >
-          {t.header.admin}
+          {nav.admin}
         </Button>
       </div>
 
@@ -230,12 +233,12 @@ export function Header({ onMenuClick }: HeaderProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => router.push('/admin/profile')}>
-            {t.header.profile}
+            {nav.profile}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout}>
             <LogOut size={14} className="mr-2" />
-            {t.header.logout}
+            {nav.logout}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

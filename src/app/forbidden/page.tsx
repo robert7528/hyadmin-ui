@@ -5,13 +5,14 @@ import { useLocale } from '@/contexts/locale-context'
 
 export default function ForbiddenPage() {
   const { t } = useLocale()
+  const { page } = t.hyadmin.errors
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
       <h1 className="text-6xl font-bold text-gray-200">403</h1>
-      <p className="text-gray-500">{t.errors.forbidden}</p>
+      <p className="text-gray-500">{page.forbidden}</p>
       <Link href="/" className="text-primary hover:underline text-sm">
-        {t.errors.go_home}
+        {page.buttonGoHome}
       </Link>
     </div>
   )

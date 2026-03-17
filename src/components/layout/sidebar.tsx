@@ -28,28 +28,32 @@ export function Sidebar() {
   const { selectedModule, features } = useModules()
   const { t } = useLocale()
 
+  const { nav } = t.hyadmin.sidebar
+  const moduleNames = t.hyadmin.moduleNames.display
+  const featureNames = t.hyadmin.featureNames.display
+
   const isAdmin =
     pathname.startsWith('/admin') || pathname.startsWith('/hyadmin/admin')
 
   // Admin: 2-level grouped menu
   const adminGroups: MenuGroup[] = [
     {
-      label: t.sidebar.group_accounts,
+      label: nav.groupAccounts,
       icon: Users,
       items: [
-        { label: t.sidebar.users, href: '/admin/users', icon: Users },
-        { label: t.sidebar.roles, href: '/admin/roles', icon: Shield },
+        { label: nav.users, href: '/admin/users', icon: Users },
+        { label: nav.roles, href: '/admin/roles', icon: Shield },
       ],
     },
     {
-      label: t.sidebar.group_system,
+      label: nav.groupSystem,
       icon: Package,
       items: [
-        { label: t.sidebar.modules, href: '/admin/modules', icon: Package },
+        { label: nav.modules, href: '/admin/modules', icon: Package },
       ],
     },
     {
-      label: t.sidebar.audit_logs,
+      label: nav.auditLogs,
       icon: ScrollText,
       href: '/admin/audit-logs',
       items: [],
@@ -60,7 +64,7 @@ export function Sidebar() {
   const featureItems: MenuItem[] = features
     .filter((f) => f.enabled)
     .map((f) => ({
-      label: t.feature_names[f.name] ?? f.display_name,
+      label: featureNames[f.name] ?? f.display_name,
       href: selectedModule
         ? `/app/${selectedModule.route}${f.path}`
         : `/app${f.path}`,
@@ -68,9 +72,9 @@ export function Sidebar() {
     }))
 
   const sectionTitle = isAdmin
-    ? t.header.admin
+    ? t.hyadmin.header.nav.admin
     : selectedModule
-      ? (t.module_names[selectedModule.name] ?? selectedModule.display_name)
+      ? (moduleNames[selectedModule.name] ?? selectedModule.display_name)
       : undefined
 
   return (
@@ -85,7 +89,7 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto p-2 space-y-1">
         {!isAdmin && !selectedModule && (
           <p className="text-sm text-muted-foreground px-3 py-2">
-            {t.sidebar.select_module}
+            {nav.selectModule}
           </p>
         )}
 

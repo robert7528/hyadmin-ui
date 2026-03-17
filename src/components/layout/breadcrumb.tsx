@@ -25,30 +25,35 @@ export function AppBreadcrumb() {
   const { selectedModule, features } = useModules()
   const { t } = useLocale()
 
+  const { nav: breadcrumbNav } = t.hyadmin.breadcrumb
+  const { nav: sidebarNav } = t.hyadmin.sidebar
+  const moduleNames = t.hyadmin.moduleNames.display
+  const featureNames = t.hyadmin.featureNames.display
+
   const adminLabels: Record<string, string> = {
-    users: t.breadcrumb.users,
-    roles: t.breadcrumb.roles,
-    modules: t.breadcrumb.modules,
-    'audit-logs': t.breadcrumb.audit_logs,
-    features: t.breadcrumb.features,
-    new: t.breadcrumb.new,
+    users: breadcrumbNav.users,
+    roles: breadcrumbNav.roles,
+    modules: breadcrumbNav.modules,
+    'audit-logs': breadcrumbNav.auditLogs,
+    features: breadcrumbNav.features,
+    new: breadcrumbNav.new,
   }
 
   const groupLabels: Record<string, string> = {
-    accounts: t.sidebar.group_accounts,
-    system: t.sidebar.group_system,
+    accounts: sidebarNav.groupAccounts,
+    system: sidebarNav.groupSystem,
   }
 
   const segments = pathname.split('/').filter(Boolean)
 
   const crumbs: { label: string; href?: string }[] = [
-    { label: t.breadcrumb.home, href: '/' },
+    { label: breadcrumbNav.home, href: '/' },
   ]
 
   const isAdminRoute = segments.includes('admin') || segments.includes('profile')
 
   if (isAdminRoute) {
-    crumbs.push({ label: t.breadcrumb.admin })
+    crumbs.push({ label: breadcrumbNav.admin })
 
     const adminSeg = segments[segments.indexOf('admin') + 1]
     if (adminSeg) {
@@ -63,13 +68,13 @@ export function AppBreadcrumb() {
       }
     }
   } else if (selectedModule) {
-    crumbs.push({ label: t.module_names[selectedModule.name] ?? selectedModule.display_name })
+    crumbs.push({ label: moduleNames[selectedModule.name] ?? selectedModule.display_name })
     const matchedFeature = features.find((f) => {
       const href = `/app/${selectedModule.route}${f.path}`
       return pathname === href || pathname.startsWith(href + '/')
     })
     if (matchedFeature) {
-      crumbs.push({ label: t.feature_names[matchedFeature.name] ?? matchedFeature.display_name })
+      crumbs.push({ label: featureNames[matchedFeature.name] ?? matchedFeature.display_name })
     }
   }
 

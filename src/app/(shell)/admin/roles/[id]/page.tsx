@@ -21,6 +21,8 @@ interface ModuleWithFeatures extends Module {
 
 export default function RolePermissionsPage() {
   const { t } = useLocale()
+  const { action } = t.shared.common
+  const { permissions: rolesPermissions } = t.hyadmin.roles
   const { id } = useParams<{ id: string }>()
   const [role, setRole] = useState<Role | null>(null)
   const [tree, setTree] = useState<ModuleWithFeatures[]>([])
@@ -87,12 +89,12 @@ export default function RolePermissionsPage() {
     <div className="space-y-4 max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold">{t.roles.permissions_title}</h1>
+          <h1 className="text-xl font-semibold">{rolesPermissions.title}</h1>
           {role && <p className="text-muted-foreground text-sm mt-0.5">{role.name}</p>}
         </div>
         <Button size="sm" disabled={saving} onClick={handleSave}>
           {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {t.common.save}
+          {action.save}
         </Button>
       </div>
 
@@ -121,7 +123,7 @@ export default function RolePermissionsPage() {
                       </div>
                     ))}
                     {feat.permissions.length === 0 && (
-                      <p className="text-xs text-muted-foreground">{t.roles.no_permissions}</p>
+                      <p className="text-xs text-muted-foreground">{rolesPermissions.empty}</p>
                     )}
                   </div>
                 </div>

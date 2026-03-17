@@ -12,6 +12,8 @@ import { useLocale } from '@/contexts/locale-context'
 
 export default function EditModulePage() {
   const { t } = useLocale()
+  const { action, label, status } = t.shared.common
+  const { header: modulesHeader, form: modulesForm, features: modulesFeatures } = t.hyadmin.modules
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const [mod, setMod] = useState<Module | null>(null)
@@ -41,54 +43,54 @@ export default function EditModulePage() {
     }
   }
 
-  if (!mod) return <p className="text-muted-foreground text-sm">{t.common.loading}</p>
+  if (!mod) return <p className="text-muted-foreground text-sm">{status.loading}</p>
 
   return (
     <div className="max-w-lg space-y-4">
-      <h1 className="text-xl font-semibold">{t.modules.edit} — <span className="font-mono text-base">{mod.name}</span></h1>
+      <h1 className="text-xl font-semibold">{modulesHeader.titleEdit} — <span className="font-mono text-base">{mod.name}</span></h1>
       <Card>
         <CardContent className="pt-6 space-y-3">
           <div className="space-y-2">
-            <Label htmlFor="display_name">{t.modules.display_name}</Label>
+            <Label htmlFor="display_name">{modulesForm.labelDisplayName}</Label>
             <Input id="display_name" value={mod.display_name} onChange={(e) => setMod({ ...mod, display_name: e.target.value })} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="url">{t.modules.url}</Label>
+            <Label htmlFor="url">{modulesForm.labelUrl}</Label>
             <Input id="url" value={mod.url} onChange={(e) => setMod({ ...mod, url: e.target.value })} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="icon">{t.modules.icon}</Label>
+            <Label htmlFor="icon">{modulesForm.labelIcon}</Label>
             <Input id="icon" value={mod.icon} onChange={(e) => setMod({ ...mod, icon: e.target.value })} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">{t.common.description}</Label>
+            <Label htmlFor="description">{label.description}</Label>
             <Input id="description" value={mod.description} onChange={(e) => setMod({ ...mod, description: e.target.value })} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="sort_order">{t.modules.sort_order}</Label>
+            <Label htmlFor="sort_order">{modulesForm.labelSortOrder}</Label>
             <Input id="sort_order" type="number" value={String(mod.sort_order)} onChange={(e) => setMod({ ...mod, sort_order: Number(e.target.value) })} />
           </div>
           <div className="flex items-center gap-2">
             <Switch checked={mod.enabled} onCheckedChange={(v) => setMod({ ...mod, enabled: v })} />
-            <span className="text-sm">{t.common.enabled}</span>
+            <span className="text-sm">{status.enabled}</span>
           </div>
           <div className="flex gap-2 pt-2">
             <Button disabled={saving} onClick={handleSave}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t.common.save}
+              {action.save}
             </Button>
-            <Button variant="ghost" onClick={() => router.back()}>{t.common.cancel}</Button>
+            <Button variant="ghost" onClick={() => router.back()}>{action.cancel}</Button>
           </div>
         </CardContent>
       </Card>
 
       <Separator />
       <div className="flex items-center justify-between">
-        <h2 className="font-medium text-sm">{t.modules.features_title}</h2>
+        <h2 className="font-medium text-sm">{modulesFeatures.title}</h2>
         <Button size="sm" asChild>
           <Link href={`/admin/modules/${id}/features/new`}>
             <Plus className="mr-2 h-4 w-4" />
-            {t.modules.new_feature}
+            {modulesFeatures.buttonNew}
           </Link>
         </Button>
       </div>

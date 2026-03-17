@@ -17,14 +17,16 @@ import { useLocale } from '@/contexts/locale-context'
 
 export default function FeaturePermissionsPage() {
   const { t } = useLocale()
+  const { action, label } = t.shared.common
+  const { header: featHeader, table: featTable, form: featForm, confirm: featConfirm } = t.hyadmin.features
   const { id } = useParams<{ id: string }>()
 
   const STANDARD_SUFFIXES = [
-    { suffix: 'view', label: t.features.tpl_view, type: 'menu' },
-    { suffix: 'create', label: t.features.tpl_create, type: 'button' },
-    { suffix: 'update', label: t.features.tpl_update, type: 'button' },
-    { suffix: 'delete', label: t.features.tpl_delete, type: 'button' },
-    { suffix: 'export', label: t.features.tpl_export, type: 'button' },
+    { suffix: 'view', label: featForm.tplView, type: 'menu' },
+    { suffix: 'create', label: featForm.tplCreate, type: 'button' },
+    { suffix: 'update', label: featForm.tplUpdate, type: 'button' },
+    { suffix: 'delete', label: featForm.tplDelete, type: 'button' },
+    { suffix: 'export', label: featForm.tplExport, type: 'button' },
   ]
   const [feature, setFeature] = useState<Feature | null>(null)
   const [permissions, setPermissions] = useState<Permission[]>([])
@@ -81,7 +83,7 @@ export default function FeaturePermissionsPage() {
   }
 
   const handleDelete = async (permId: number) => {
-    if (!confirm(t.features.confirm_delete)) return
+    if (!confirm(featConfirm.delete)) return
     await adminPermissionsApi.delete(permId)
     load()
   }
@@ -95,14 +97,14 @@ export default function FeaturePermissionsPage() {
   return (
     <div className="space-y-4 max-w-2xl">
       <h1 className="text-xl font-semibold">
-        {t.features.title}
+        {featHeader.title}
         {feature && <span className="text-muted-foreground font-normal text-base ml-2">— {feature.display_name}</span>}
       </h1>
 
       {/* Batch create from template */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm font-medium">{t.features.batch_title}</CardTitle>
+          <CardTitle className="text-sm font-medium">{featHeader.titleBatch}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-3 mb-3">
@@ -128,26 +130,26 @@ export default function FeaturePermissionsPage() {
           </div>
           <Button size="sm" disabled={batching} onClick={handleBatchCreate}>
             {batching && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {t.features.batch_apply}
+            {featHeader.buttonBatchApply}
           </Button>
         </CardContent>
       </Card>
 
       {/* Existing permissions */}
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-muted-foreground">{t.features.existing_title}</h2>
+        <h2 className="text-sm font-semibold text-muted-foreground">{featHeader.titleExisting}</h2>
         <Button size="sm" onClick={() => setShowModal(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          {t.features.new_custom}
+          {featHeader.buttonNewCustom}
         </Button>
       </div>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{t.features.code}</TableHead>
-            <TableHead>{t.common.name}</TableHead>
-            <TableHead>{t.features.type}</TableHead>
-            <TableHead>{t.common.actions}</TableHead>
+            <TableHead>{featTable.columnCode}</TableHead>
+            <TableHead>{label.name}</TableHead>
+            <TableHead>{featTable.columnType}</TableHead>
+            <TableHead>{label.actions}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -174,21 +176,21 @@ export default function FeaturePermissionsPage() {
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t.features.new_custom}</DialogTitle>
+            <DialogTitle>{featHeader.buttonNewCustom}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 py-4">
             <div className="space-y-2">
-              <Label htmlFor="perm-suffix">{t.features.suffix}</Label>
+              <Label htmlFor="perm-suffix">{featTable.columnSuffix}</Label>
               <Input
                 id="perm-suffix"
                 placeholder="e.g. reset_pwd"
                 value={newPerm.suffix}
                 onChange={(e) => setNewPerm({ ...newPerm, suffix: e.target.value })}
               />
-              <p className="text-xs text-muted-foreground">{t.features.full_code}: {codePrefix}.{newPerm.suffix || '...'}</p>
+              <p className="text-xs text-muted-foreground">{featTable.columnFullCode}: {codePrefix}.{newPerm.suffix || '...'}</p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="perm-name">{t.common.name}</Label>
+              <Label htmlFor="perm-name">{label.name}</Label>
               <Input
                 id="perm-name"
                 placeholder="e.g. Reset Password"
@@ -197,22 +199,22 @@ export default function FeaturePermissionsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label>{t.features.type}</Label>
+              <Label>{featTable.columnType}</Label>
               <Select value={newPerm.type} onValueChange={(v) => setNewPerm({ ...newPerm, type: v })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="menu">menu ({t.features.type_menu})</SelectItem>
-                  <SelectItem value="button">button ({t.features.type_button})</SelectItem>
-                  <SelectItem value="api">api ({t.features.type_api})</SelectItem>
+                  <SelectItem value="menu">menu ({featForm.typeMenu})</SelectItem>
+                  <SelectItem value="button">button ({featForm.typeButton})</SelectItem>
+                  <SelectItem value="api">api ({featForm.typeApi})</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setShowModal(false)}>{t.common.cancel}</Button>
-            <Button onClick={handleCreateCustom}>{t.common.create}</Button>
+            <Button variant="ghost" onClick={() => setShowModal(false)}>{action.cancel}</Button>
+            <Button onClick={handleCreateCustom}>{action.create}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

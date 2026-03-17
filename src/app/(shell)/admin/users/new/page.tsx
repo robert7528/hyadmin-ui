@@ -9,6 +9,9 @@ import { useLocale } from '@/contexts/locale-context'
 
 export default function NewUserPage() {
   const { t } = useLocale()
+  const { action, label, error: commonError } = t.shared.common
+  const { header: usersHeader, form: usersForm } = t.hyadmin.users
+  const { form: loginForm } = t.hyadmin.login
   const router = useRouter()
   const [form, setForm] = useState({
     tenant_code: '', username: '', password: '', display_name: '', email: '', provider: 'local',
@@ -27,7 +30,7 @@ export default function NewUserPage() {
       await adminUsersApi.create(form)
       router.push('/admin/users')
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t.common.create_failed)
+      setError(err instanceof Error ? err.message : commonError.createFailed)
     } finally {
       setSaving(false)
     }
@@ -35,24 +38,24 @@ export default function NewUserPage() {
 
   return (
     <div className="max-w-lg">
-      <h1 className="text-xl font-semibold mb-4">{t.users.new}</h1>
+      <h1 className="text-xl font-semibold mb-4">{usersHeader.buttonNew}</h1>
       <Card>
         <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="space-y-2">
-              <Label htmlFor="tenant_code">{t.common.tenant_code}</Label>
+              <Label htmlFor="tenant_code">{label.tenantCode}</Label>
               <Input id="tenant_code" value={form.tenant_code} onChange={set('tenant_code')} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="username">{t.users.username}</Label>
+              <Label htmlFor="username">{usersForm.labelUsername}</Label>
               <Input id="username" value={form.username} onChange={set('username')} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">{t.login.password}</Label>
+              <Label htmlFor="password">{loginForm.labelPassword}</Label>
               <Input id="password" type="password" value={form.password} onChange={set('password')} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="display_name">{t.users.display_name}</Label>
+              <Label htmlFor="display_name">{usersForm.labelDisplayName}</Label>
               <Input id="display_name" value={form.display_name} onChange={set('display_name')} />
             </div>
             <div className="space-y-2">
@@ -63,9 +66,9 @@ export default function NewUserPage() {
             <div className="flex gap-2 pt-2">
               <Button type="submit" disabled={saving}>
                 {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {t.common.create}
+                {action.create}
               </Button>
-              <Button variant="ghost" type="button" onClick={() => router.back()}>{t.common.cancel}</Button>
+              <Button variant="ghost" type="button" onClick={() => router.back()}>{action.cancel}</Button>
             </div>
           </form>
         </CardContent>

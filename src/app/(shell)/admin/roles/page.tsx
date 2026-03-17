@@ -11,6 +11,8 @@ import { useLocale } from '@/contexts/locale-context'
 
 export default function RolesPage() {
   const { t } = useLocale()
+  const { label } = t.shared.common
+  const { header: rolesHeader, table: rolesTable, permissions: rolesPermissions, confirm: rolesConfirm } = t.hyadmin.roles
   const [roles, setRoles] = useState<Role[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -27,7 +29,7 @@ export default function RolesPage() {
   useEffect(() => { load() }, [])
 
   const handleDelete = async (id: number) => {
-    if (!confirm(t.roles.confirm_delete)) return
+    if (!confirm(rolesConfirm.delete)) return
     await adminRolesApi.delete(id)
     load()
   }
@@ -35,12 +37,12 @@ export default function RolesPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">{t.roles.title}</h1>
+        <h1 className="text-xl font-semibold">{rolesHeader.title}</h1>
         <PermissionGuard code="admin.roles.create">
           <Button size="sm" asChild>
             <Link href="/admin/roles/new">
               <Plus className="mr-2 h-4 w-4" />
-              {t.roles.new}
+              {rolesHeader.buttonNew}
             </Link>
           </Button>
         </PermissionGuard>
@@ -53,10 +55,10 @@ export default function RolesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t.roles.name}</TableHead>
-              <TableHead>{t.roles.description}</TableHead>
-              <TableHead>{t.roles.tenant}</TableHead>
-              <TableHead>{t.common.actions}</TableHead>
+              <TableHead>{rolesTable.columnName}</TableHead>
+              <TableHead>{rolesTable.columnDescription}</TableHead>
+              <TableHead>{rolesTable.columnTenant}</TableHead>
+              <TableHead>{label.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -67,7 +69,7 @@ export default function RolesPage() {
                 <TableCell>{role.tenant_code}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="icon" title={t.roles.permissions_title} asChild>
+                    <Button variant="ghost" size="icon" title={rolesPermissions.title} asChild>
                       <Link href={`/admin/roles/${role.id}`}>
                         <Settings className="h-4 w-4" />
                       </Link>

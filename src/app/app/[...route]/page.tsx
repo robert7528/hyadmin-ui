@@ -16,7 +16,7 @@ export default function AppPage() {
   if (!mod || !mod.url) {
     return (
       <div className="text-muted-foreground text-sm py-8 text-center">
-        {t.errors.module_not_found}
+        {t.hyadmin.errors.page.moduleNotFound}
       </div>
     )
   }

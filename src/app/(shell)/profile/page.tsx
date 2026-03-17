@@ -8,6 +8,8 @@ import { useLocale } from '@/contexts/locale-context'
 
 export default function ProfilePage() {
   const { t } = useLocale()
+  const { header: profileHeader, name: profileName, password: profilePassword } = t.hyadmin.profile
+  const { error: commonError } = t.shared.common
   const [displayName, setDisplayName] = useState('')
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -21,9 +23,9 @@ export default function ProfilePage() {
         method: 'PUT',
         body: JSON.stringify({ display_name: displayName }),
       })
-      setMsg(t.profile.name_updated)
+      setMsg(profileName.successUpdated)
     } catch (e: unknown) {
-      setMsg(e instanceof Error ? e.message : t.common.update_failed)
+      setMsg(e instanceof Error ? e.message : commonError.updateFailed)
     } finally {
       setSaving(false)
     }
@@ -36,11 +38,11 @@ export default function ProfilePage() {
         method: 'PUT',
         body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
       })
-      setMsg(t.profile.password_updated)
+      setMsg(profilePassword.successUpdated)
       setOldPassword('')
       setNewPassword('')
     } catch (e: unknown) {
-      setMsg(e instanceof Error ? e.message : t.common.update_failed)
+      setMsg(e instanceof Error ? e.message : commonError.updateFailed)
     } finally {
       setSaving(false)
     }
@@ -48,15 +50,15 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-4 max-w-md">
-      <h1 className="text-xl font-semibold">{t.profile.title}</h1>
+      <h1 className="text-xl font-semibold">{profileHeader.title}</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm font-medium">{t.profile.update_name_title}</CardTitle>
+          <CardTitle className="text-sm font-medium">{profileName.title}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-2">
-            <Label htmlFor="display_name">{t.profile.display_name}</Label>
+            <Label htmlFor="display_name">{profileName.labelDisplayName}</Label>
             <Input
               id="display_name"
               value={displayName}
@@ -65,18 +67,18 @@ export default function ProfilePage() {
           </div>
           <Button size="sm" disabled={saving} onClick={handleUpdateName}>
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {t.profile.update}
+            {profileName.buttonUpdate}
           </Button>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm font-medium">{t.profile.change_password_title}</CardTitle>
+          <CardTitle className="text-sm font-medium">{profilePassword.title}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-2">
-            <Label htmlFor="old_password">{t.profile.old_password}</Label>
+            <Label htmlFor="old_password">{profilePassword.labelOldPassword}</Label>
             <Input
               id="old_password"
               type="password"
@@ -85,7 +87,7 @@ export default function ProfilePage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="new_password">{t.profile.new_password}</Label>
+            <Label htmlFor="new_password">{profilePassword.labelNewPassword}</Label>
             <Input
               id="new_password"
               type="password"
@@ -95,7 +97,7 @@ export default function ProfilePage() {
           </div>
           <Button size="sm" disabled={saving} onClick={handleChangePassword}>
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {t.profile.change_password}
+            {profilePassword.buttonChange}
           </Button>
         </CardContent>
       </Card>

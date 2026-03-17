@@ -14,6 +14,7 @@ export default function LoginPage() {
   const { loadPermissions } = usePermission()
   const { loadModules } = useModules()
   const { t } = useLocale()
+  const { header: loginHeader, form: loginForm, error: loginError } = t.hyadmin.login
   const [form, setForm] = useState({ tenant_code: '', username: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -29,7 +30,7 @@ export default function LoginPage() {
       await loadModules()
       router.push('/')
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t.login.failed)
+      setError(err instanceof Error ? err.message : loginError.failed)
     } finally {
       setLoading(false)
     }
@@ -38,13 +39,13 @@ export default function LoginPage() {
   return (
     <Card className="w-full max-w-sm shadow-lg">
       <CardHeader className="flex flex-col items-center pb-0 pt-6">
-        <CardTitle className="text-2xl font-bold text-primary">{t.login.title}</CardTitle>
-        <CardDescription className="mt-1">{t.login.subtitle}</CardDescription>
+        <CardTitle className="text-2xl font-bold text-primary">{loginHeader.title}</CardTitle>
+        <CardDescription className="mt-1">{loginHeader.subtitle}</CardDescription>
       </CardHeader>
       <CardContent className="px-6 pb-6 pt-4">
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="tenant_code">{t.login.tenant_code}</Label>
+            <Label htmlFor="tenant_code">{loginForm.labelTenantCode}</Label>
             <Input
               id="tenant_code"
               placeholder="tenant_code"
@@ -54,7 +55,7 @@ export default function LoginPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="username">{t.login.username}</Label>
+            <Label htmlFor="username">{loginForm.labelUsername}</Label>
             <Input
               id="username"
               placeholder="username"
@@ -64,7 +65,7 @@ export default function LoginPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">{t.login.password}</Label>
+            <Label htmlFor="password">{loginForm.labelPassword}</Label>
             <Input
               id="password"
               type="password"
@@ -77,7 +78,7 @@ export default function LoginPage() {
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {t.login.submit}
+            {loginForm.buttonSubmit}
           </Button>
         </form>
       </CardContent>

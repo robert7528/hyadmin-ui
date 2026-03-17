@@ -11,6 +11,8 @@ import { useLocale } from '@/contexts/locale-context'
 
 export default function ModulesPage() {
   const { t } = useLocale()
+  const { label, status } = t.shared.common
+  const { header: modulesHeader, form: modulesForm, confirm: modulesConfirm } = t.hyadmin.modules
   const [modules, setModules] = useState<Module[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -27,7 +29,7 @@ export default function ModulesPage() {
   useEffect(() => { load() }, [])
 
   const handleDelete = async (id: number) => {
-    if (!confirm(t.modules.confirm_delete)) return
+    if (!confirm(modulesConfirm.delete)) return
     await adminModulesApi.delete(id)
     load()
   }
@@ -35,12 +37,12 @@ export default function ModulesPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">{t.modules.title}</h1>
+        <h1 className="text-xl font-semibold">{modulesHeader.title}</h1>
         <PermissionGuard code="admin.modules.create">
           <Button size="sm" asChild>
             <Link href="/admin/modules/new">
               <Plus className="mr-2 h-4 w-4" />
-              {t.modules.new}
+              {modulesHeader.buttonNew}
             </Link>
           </Button>
         </PermissionGuard>
@@ -53,12 +55,12 @@ export default function ModulesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t.modules.name}</TableHead>
-              <TableHead>{t.modules.display_name}</TableHead>
-              <TableHead>{t.modules.route}</TableHead>
-              <TableHead>{t.modules.sort_order}</TableHead>
-              <TableHead>{t.common.status}</TableHead>
-              <TableHead>{t.common.actions}</TableHead>
+              <TableHead>{modulesForm.labelName}</TableHead>
+              <TableHead>{modulesForm.labelDisplayName}</TableHead>
+              <TableHead>{modulesForm.labelRoute}</TableHead>
+              <TableHead>{modulesForm.labelSortOrder}</TableHead>
+              <TableHead>{label.status}</TableHead>
+              <TableHead>{label.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -70,7 +72,7 @@ export default function ModulesPage() {
                 <TableCell>{mod.sort_order}</TableCell>
                 <TableCell>
                   <Badge variant={mod.enabled ? 'default' : 'outline'}>
-                    {mod.enabled ? t.common.enabled : t.common.disabled}
+                    {mod.enabled ? status.enabled : status.disabled}
                   </Badge>
                 </TableCell>
                 <TableCell>
