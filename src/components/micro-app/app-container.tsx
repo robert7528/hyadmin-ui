@@ -26,6 +26,7 @@ export function AppContainer({ module }: AppContainerProps) {
         name={module.name}
         url={module.url}
         baseroute={`/app/${module.route}`}
+        inline
       />
     </div>
   )
