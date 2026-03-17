@@ -15,8 +15,8 @@ import { certUtilityApi, type VerifyResponse, type ParseResponse, type ConvertRe
 
 type Tool = 'verify' | 'parse' | 'convert' | 'generate-csr'
 
-const CERT_ACCEPT = '.pem,.cer,.crt,.der,.pfx,.p12,.key,.csr'
-const BINARY_EXTS = ['.pfx', '.p12', '.der', '.cer']
+const CERT_ACCEPT = '.pem,.cer,.crt,.der,.pfx,.p12,.jks,.p7b,.key,.csr'
+const BINARY_EXTS = ['.pfx', '.p12', '.der', '.cer', '.jks', '.p7b']
 
 function isBinaryFile(filename: string): boolean {
   const lower = filename.toLowerCase()
@@ -136,10 +136,23 @@ function VerifyTool() {
   const { t } = useLocale()
   const ct = t.cert_toolbox
   const [cert, setCert] = useState('')
+  const [inputType, setInputType] = useState('')
+  const [password, setPassword] = useState('')
+  const [uploadedFilename, setUploadedFilename] = useState('')
   const [privateKey, setPrivateKey] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState<VerifyResponse | null>(null)
+
+  const isPfx = inputType === 'pfx_base64'
+  const isBinary = inputType === 'pfx_base64' || inputType === 'der_base64'
+
+  const handleFileUpload = (r: FileUploadResult) => {
+    setCert(r.content)
+    setInputType(r.inputType)
+    setUploadedFilename(r.filename)
+    if (!r.inputType) setPassword('')
+  }
 
   const handleVerify = async () => {
     if (!cert.trim()) return
@@ -150,6 +163,8 @@ function VerifyTool() {
       const res = await certUtilityApi.verify({
         certificate: cert,
         private_key: privateKey || undefined,
+        input_type: inputType || undefined,
+        password: password || undefined,
       })
       setResult(res.data)
     } catch (e: unknown) {
@@ -170,16 +185,31 @@ function VerifyTool() {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label>{ct.certificate_pem}</Label>
-              <FileUploadButton accept=".pem,.cer,.crt" label={ct.upload_file} onLoad={(r) => setCert(r.content)} />
+              <FileUploadButton label={ct.upload_file} onLoad={handleFileUpload} />
             </div>
-            <Textarea
-              rows={10}
-              placeholder="-----BEGIN CERTIFICATE-----"
-              value={cert}
-              onChange={(e) => setCert(e.target.value)}
-              className="font-mono text-xs"
-            />
+            {isBinary && uploadedFilename ? (
+              <div className="rounded-md border p-3 text-sm text-muted-foreground font-mono">{uploadedFilename}</div>
+            ) : (
+              <Textarea
+                rows={10}
+                placeholder="-----BEGIN CERTIFICATE-----"
+                value={cert}
+                onChange={(e) => { setCert(e.target.value); setInputType(''); setUploadedFilename('') }}
+                className="font-mono text-xs"
+              />
+            )}
           </div>
+          {isPfx && (
+            <div className="space-y-1.5">
+              <Label>{ct.pfx_password}</Label>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={ct.pfx_password_placeholder}
+              />
+            </div>
+          )}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label>{ct.private_key_optional}</Label>
@@ -410,12 +440,26 @@ function ConvertTool() {
   const { t } = useLocale()
   const ct = t.cert_toolbox
   const [cert, setCert] = useState('')
+  const [inputType, setInputType] = useState('')
+  const [inputPassword, setInputPassword] = useState('')
+  const [uploadedFilename, setUploadedFilename] = useState('')
   const [privateKey, setPrivateKey] = useState('')
   const [targetFormat, setTargetFormat] = useState('der')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState<ConvertResponse | null>(null)
+
+  const isInputPfx = inputType === 'pfx_base64'
+  const isInputBinary = inputType === 'pfx_base64' || inputType === 'der_base64'
+  const needsOutputPassword = targetFormat === 'pfx' || targetFormat === 'jks'
+
+  const handleFileUpload = (r: FileUploadResult) => {
+    setCert(r.content)
+    setInputType(r.inputType)
+    setUploadedFilename(r.filename)
+    if (!r.inputType) setInputPassword('')
+  }
 
   const handleConvert = async () => {
     if (!cert.trim()) return
@@ -426,6 +470,8 @@ function ConvertTool() {
       const res = await certUtilityApi.convert({
         certificate: cert,
         private_key: privateKey || undefined,
+        input_type: inputType || undefined,
+        input_password: inputPassword || undefined,
         target_format: targetFormat,
         options: password ? { password } : undefined,
       })
@@ -462,16 +508,31 @@ function ConvertTool() {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label>{ct.certificate_pem}</Label>
-              <FileUploadButton accept=".pem,.cer,.crt" label={ct.upload_file} onLoad={(r) => setCert(r.content)} />
+              <FileUploadButton label={ct.upload_file} onLoad={handleFileUpload} />
             </div>
-            <Textarea
-              rows={8}
-              placeholder="-----BEGIN CERTIFICATE-----"
-              value={cert}
-              onChange={(e) => setCert(e.target.value)}
-              className="font-mono text-xs"
-            />
+            {isInputBinary && uploadedFilename ? (
+              <div className="rounded-md border p-3 text-sm text-muted-foreground font-mono">{uploadedFilename}</div>
+            ) : (
+              <Textarea
+                rows={8}
+                placeholder="-----BEGIN CERTIFICATE-----"
+                value={cert}
+                onChange={(e) => { setCert(e.target.value); setInputType(''); setUploadedFilename('') }}
+                className="font-mono text-xs"
+              />
+            )}
           </div>
+          {isInputPfx && (
+            <div className="space-y-1.5">
+              <Label>{ct.input_pfx_password ?? ct.pfx_password}</Label>
+              <Input
+                type="password"
+                value={inputPassword}
+                onChange={(e) => setInputPassword(e.target.value)}
+                placeholder={ct.pfx_password_placeholder}
+              />
+            </div>
+          )}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label>{ct.private_key_optional}</Label>
@@ -492,14 +553,20 @@ function ConvertTool() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="pem">PEM (.pem)</SelectItem>
                 <SelectItem value="der">DER (.der/.cer)</SelectItem>
                 <SelectItem value="pfx">PFX / PKCS#12 (.pfx)</SelectItem>
+                <SelectItem value="jks">JKS (.jks)</SelectItem>
+                <SelectItem value="p7b">P7B / PKCS#7 (.p7b)</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          {targetFormat === 'pfx' && (
+          {targetFormat === 'p7b' && (
+            <p className="text-xs text-muted-foreground">{ct.p7b_no_key_hint ?? 'P7B only contains certificates, private key is not included.'}</p>
+          )}
+          {needsOutputPassword && (
             <div className="space-y-1.5">
-              <Label>{ct.pfx_password}</Label>
+              <Label>{ct.output_password ?? ct.pfx_password}</Label>
               <Input
                 type="password"
                 value={password}
@@ -525,7 +592,8 @@ function ConvertTool() {
             <Row label={ct.format} value={result.format} />
             <Row label={ct.filename} value={result.filename_suggestion} />
             <Row label={ct.chain_included_label} value={result.chain_included ? ct.yes : ct.no} />
-            <Button variant="outline" onClick={handleDownload} className="w-full">
+            <Button variant="outline" onClick={handleDownload} className="w-full gap-1.5">
+              <Download className="h-3.5 w-3.5" />
               {ct.download}
             </Button>
           </CardContent>

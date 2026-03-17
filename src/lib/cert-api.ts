@@ -46,6 +46,8 @@ async function certFetch<T>(path: string, init: RequestInit = {}): Promise<ApiRe
 export interface VerifyRequest {
   certificate: string
   private_key?: string
+  input_type?: string
+  password?: string
   chain_input?: {
     intermediates?: string[]
     root?: string
@@ -101,6 +103,8 @@ export interface ParseResponse {
 export interface ConvertRequest {
   certificate: string
   private_key?: string
+  input_type?: string
+  input_password?: string
   target_format: string
   options?: {
     password?: string
