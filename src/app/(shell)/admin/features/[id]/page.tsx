@@ -3,34 +3,13 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Plus, Trash2, Loader2 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
 import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from '@/components/ui/table'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog'
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select'
+  Card, CardContent, CardHeader, CardTitle,
+  Input, Label, Button, Checkbox, Badge,
+  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+  Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
+} from '@hysp/ui-kit'
 import { adminFeaturesApi, adminPermissionsApi } from '@/lib/api'
 import type { Feature } from '@/types/feature'
 import type { Permission } from '@/types/permission'

@@ -8,16 +8,16 @@ import { usePermission } from '@/contexts/permission-context'
 import { useLocale } from '@/contexts/locale-context'
 import { localeLabels, type Locale } from '@/i18n'
 import { clearToken } from '@/lib/api'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
 import {
+  cn,
+  Button,
+  Separator,
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu'
+} from '@hysp/ui-kit'
 import Link from 'next/link'
 
 /** Approx width reserved for Brand + End section + padding */

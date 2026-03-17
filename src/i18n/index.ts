@@ -1,7 +1,7 @@
+import type { Locale } from '@hysp/ui-kit'
+import { localeLabels } from '@hysp/ui-kit'
 import zhTW from './locales/zh-TW'
 import en from './locales/en'
-
-export type Locale = 'zh-TW' | 'en'
 
 /** Recursively widen literal string types to `string` while keeping structure */
 type DeepStringify<T> = {
@@ -15,9 +15,6 @@ export const locales: Record<Locale, Dictionary> = {
   en,
 }
 
-export const localeLabels: Record<Locale, string> = {
-  'zh-TW': '繁體中文',
-  en: 'English',
-}
-
+export { localeLabels }
 export const defaultLocale: Locale = 'zh-TW'
+export type { Locale }

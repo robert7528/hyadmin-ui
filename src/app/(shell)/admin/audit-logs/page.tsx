@@ -2,17 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Search, Loader2 } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from '@/components/ui/table'
+import { Input, Button, Badge, Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@hysp/ui-kit'
 import { apiFetch } from '@/lib/api'
 import { useLocale } from '@/contexts/locale-context'
 

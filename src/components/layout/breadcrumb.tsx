@@ -11,7 +11,7 @@ import {
   BreadcrumbLink,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
+} from '@hysp/ui-kit'
 
 /** Map admin path segments to their sidebar group */
 const adminGroupMap: Record<string, string> = {

@@ -6,7 +6,7 @@ import { Header } from './header'
 import { Sidebar } from './sidebar'
 import { AppBreadcrumb } from './breadcrumb'
 import { useIdleTimeout } from '@/hooks/use-idle-timeout'
-import { Sheet, SheetContent } from '@/components/ui/sheet'
+import { Sheet, SheetContent } from '@hysp/ui-kit'
 
 const NO_SHELL_PATHS = ['/login', '/hyadmin/login', '/forbidden']
 

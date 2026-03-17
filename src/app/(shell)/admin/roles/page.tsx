@@ -3,15 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Plus, Settings, Trash2, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from '@/components/ui/table'
+import { Button, Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@hysp/ui-kit'
 import { adminRolesApi } from '@/lib/api'
 import type { Role } from '@/types/role'
 import { PermissionGuard } from '@/components/permission-guard'

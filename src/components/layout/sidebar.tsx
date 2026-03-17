@@ -5,14 +5,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useModules } from '@/contexts/module-context'
 import { useLocale } from '@/contexts/locale-context'
-import { cn } from '@/lib/utils'
+import { cn, Collapsible, CollapsibleContent, CollapsibleTrigger } from '@hysp/ui-kit'
 import { ChevronRight, Users, Shield, Package, ScrollText, Settings } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible'
 
 interface MenuItem {
   label: string
