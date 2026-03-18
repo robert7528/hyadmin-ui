@@ -1,5 +1,3 @@
-'use client'
-
 import { LocaleProvider } from '@/contexts/locale-context'
 import { PermissionProvider } from '@/contexts/permission-context'
 import { ModuleProvider } from '@/contexts/module-context'

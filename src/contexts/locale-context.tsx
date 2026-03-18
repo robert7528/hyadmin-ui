@@ -1,5 +1,3 @@
-'use client'
-
 import { LocaleProvider as BaseLocaleProvider, useLocale as baseUseLocale } from '@hysp/ui-kit'
 import type { Locale } from '@hysp/ui-kit'
 import { locales, type Dictionary } from '@/i18n'

@@ -1,8 +1,4 @@
-'use client'
-
-import dynamic from 'next/dynamic'
-
-const WujieReact = dynamic(() => import('wujie-react'), { ssr: false })
+import WujieReact from 'wujie-react'
 import type { Module } from '@/types/module'
 
 interface AppContainerProps {

@@ -1,7 +1,4 @@
-'use client'
-
-import { usePathname } from 'next/navigation'
-import Link from 'next/link'
+import { useLocation, Link } from 'react-router-dom'
 import { useModules } from '@/contexts/module-context'
 import { useLocale } from '@/contexts/locale-context'
 import {
@@ -21,7 +18,7 @@ const adminGroupMap: Record<string, string> = {
 }
 
 export function AppBreadcrumb() {
-  const pathname = usePathname()
+  const { pathname } = useLocation()
   const { selectedModule, features } = useModules()
   const { t } = useLocale()
 
@@ -92,7 +89,7 @@ export function AppBreadcrumb() {
                 <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
               ) : crumb.href ? (
                 <BreadcrumbLink asChild>
-                  <Link href={crumb.href}>{crumb.label}</Link>
+                  <Link to={crumb.href}>{crumb.label}</Link>
                 </BreadcrumbLink>
               ) : (
                 <BreadcrumbPage>{crumb.label}</BreadcrumbPage>

@@ -11,13 +11,13 @@
 #   sudo journalctl -u hyadmin-ui -f
 
 [Unit]
-Description=HySP Admin UI (Next.js)
+Description=HySP Admin UI (Vite + nginx)
 After=network.target
 
 [Container]
 Image=ghcr.io/robert7528/hyadmin-ui:latest
 # 只對 localhost 開放，由 nginx 反向代理
-PublishPort=127.0.0.1:3001:3000
+PublishPort=127.0.0.1:3001:80
 LogDriver=journald
 
 [Service]

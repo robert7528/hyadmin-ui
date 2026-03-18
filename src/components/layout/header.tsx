@@ -1,7 +1,5 @@
-'use client'
-
 import { useEffect, useRef, useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { MoreHorizontal, LogOut, Menu, User, Globe } from 'lucide-react'
 import { useModules } from '@/contexts/module-context'
 import { usePermission } from '@/contexts/permission-context'
@@ -18,7 +16,6 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from '@hysp/ui-kit'
-import Link from 'next/link'
 
 /** Approx width reserved for Brand + End section + padding */
 const RESERVED_WIDTH = 320
@@ -82,8 +79,8 @@ interface HeaderProps {
 }
 
 export function Header({ onMenuClick }: HeaderProps) {
-  const router = useRouter()
-  const pathname = usePathname()
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
   const { modules, selectedModule, loadModules, selectModule } = useModules()
   const { loadPermissions } = usePermission()
   const { t, locale, setLocale } = useLocale()
@@ -104,21 +101,21 @@ export function Header({ onMenuClick }: HeaderProps) {
   const visibleModules = modules.slice(0, maxVisible)
   const overflowModules = modules.slice(maxVisible)
 
-  const isAdmin = pathname.startsWith('/admin') || pathname.startsWith('/hyadmin/admin')
+  const isAdmin = pathname.startsWith('/admin')
 
   const handleSelectModule = (mod: (typeof modules)[0]) => {
     selectModule(mod).then(() => {
-      router.push(`/app/${mod.route}`)
+      navigate(`/app/${mod.route}`)
     })
   }
 
   const handleAdminClick = () => {
-    router.push('/admin/users')
+    navigate('/admin/users')
   }
 
   const handleLogout = async () => {
     clearToken()
-    router.push('/login')
+    navigate('/login')
   }
 
   return (
@@ -138,7 +135,7 @@ export function Header({ onMenuClick }: HeaderProps) {
       {/* Left: Logo — fixed width to align with sidebar */}
       <div className="hidden md:flex w-60 shrink-0 items-center border-r mr-4 -ml-4 pl-4 h-full">
         <Link
-          href="/"
+          to="/"
           className="flex items-center gap-2 font-semibold text-primary"
         >
           HySP Console
@@ -146,7 +143,7 @@ export function Header({ onMenuClick }: HeaderProps) {
       </div>
       {/* Mobile: Logo without fixed width */}
       <Link
-        href="/"
+        to="/"
         className="md:hidden flex items-center gap-2 font-semibold text-primary mr-2 shrink-0"
       >
         HySP Console
@@ -232,7 +229,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => router.push('/admin/profile')}>
+          <DropdownMenuItem onClick={() => navigate('/profile')}>
             {nav.profile}
           </DropdownMenuItem>
           <DropdownMenuSeparator />

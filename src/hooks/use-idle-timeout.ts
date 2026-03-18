@@ -1,5 +1,3 @@
-'use client'
-
 import { useEffect, useRef } from 'react'
 import { clearToken } from '@/lib/api'
 
@@ -11,7 +9,7 @@ export function useIdleTimeout(timeoutMinutes = 30) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    if (typeof window === 'undefined' || timeoutMinutes <= 0) return
+    if (timeoutMinutes <= 0) return
 
     const reset = () => {
       if (timerRef.current) clearTimeout(timerRef.current)

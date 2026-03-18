@@ -1,8 +1,5 @@
-'use client'
-
 import { useState } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { Link, useLocation } from 'react-router-dom'
 import { useModules } from '@/contexts/module-context'
 import { useLocale } from '@/contexts/locale-context'
 import { cn, Collapsible, CollapsibleContent, CollapsibleTrigger } from '@hysp/ui-kit'
@@ -24,7 +21,7 @@ interface MenuGroup {
 }
 
 export function Sidebar() {
-  const pathname = usePathname()
+  const { pathname } = useLocation()
   const { selectedModule, features } = useModules()
   const { t } = useLocale()
 
@@ -32,8 +29,7 @@ export function Sidebar() {
   const moduleNames = t.hyadmin.moduleNames.display
   const featureNames = t.hyadmin.featureNames.display
 
-  const isAdmin =
-    pathname.startsWith('/admin') || pathname.startsWith('/hyadmin/admin')
+  const isAdmin = pathname.startsWith('/admin')
 
   // Admin: 2-level grouped menu
   const adminGroups: MenuGroup[] = [
@@ -146,7 +142,7 @@ function SidebarLink({
 }) {
   return (
     <Link
-      href={href}
+      to={href}
       className={cn(
         'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors',
         'hover:bg-accent hover:text-accent-foreground',

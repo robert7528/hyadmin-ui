@@ -1,5 +1,3 @@
-'use client'
-
 import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import type { Module } from '@/types/module'
 import type { Feature } from '@/types/feature'

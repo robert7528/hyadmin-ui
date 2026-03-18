@@ -13,7 +13,6 @@ const TENANT_KEY = 'hyadmin_tenant'
 // ── Token management ─────────────────────────────────────────────────────────
 
 export function getToken(): string | null {
-  if (typeof window === 'undefined') return null
   return sessionStorage.getItem(TOKEN_KEY) ?? Cookies.get(TOKEN_KEY) ?? null
 }
 
@@ -34,7 +33,6 @@ export function clearToken(): void {
 }
 
 export function getTenantCode(): string {
-  if (typeof window === 'undefined') return ''
   return sessionStorage.getItem(TENANT_KEY) ?? Cookies.get(TENANT_KEY) ?? ''
 }
 
@@ -55,9 +53,7 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
 
   if (res.status === 401) {
     clearToken()
-    if (typeof window !== 'undefined') {
-      window.location.href = '/hyadmin/login'
-    }
+    window.location.href = '/hyadmin/login'
     throw new Error('Unauthorized')
   }
 
