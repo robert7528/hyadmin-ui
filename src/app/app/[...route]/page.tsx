@@ -4,12 +4,22 @@ import { useParams } from 'next/navigation'
 import { useModules } from '@/contexts/module-context'
 import { useLocale } from '@/contexts/locale-context'
 import { AppContainer } from '@/components/micro-app/app-container'
+import { Loader2 } from 'lucide-react'
 
 export default function AppPage() {
   const params = useParams()
   const route = (Array.isArray(params.route) ? params.route[0] : params.route) ?? ''
   const { modules } = useModules()
   const { t } = useLocale()
+
+  // modules still loading
+  if (modules.length === 0) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    )
+  }
 
   const mod = modules.find((m) => m.route === route && m.enabled)
 
@@ -21,6 +31,5 @@ export default function AppPage() {
     )
   }
 
-  // All modules are micro-apps
-  return <AppContainer module={mod} />
+  return <AppContainer key={mod.name} module={mod} />
 }
