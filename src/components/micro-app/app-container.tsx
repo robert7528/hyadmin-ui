@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Module } from '@/types/module'
 
 interface AppContainerProps {
@@ -8,41 +8,25 @@ interface AppContainerProps {
 }
 
 export function AppContainer({ module }: AppContainerProps) {
-  const initialized = useRef(false)
-  const [height, setHeight] = useState<number | null>(null)
+  const [height, setHeight] = useState(800)
 
-  useEffect(() => {
-    if (initialized.current) return
-    initialized.current = true
-    import('@micro-zoe/micro-app').then(({ default: microApp }) => {
-      if (!microApp.hasInit) {
-        microApp.start()
-      }
-    })
-  }, [])
-
-  // Listen for height sync messages from child apps
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
-      if (e.data?.type === 'HYSP_RESIZE' && e.data?.appName === module.name) {
+      if (e.data?.type === 'HYSP_RESIZE' && e.data?.height) {
         setHeight(e.data.height)
       }
     }
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
-  }, [module.name])
+  }, [])
 
   return (
-    <div
-      className="w-full"
-      style={height ? { height: `${height}px`, overflow: 'hidden' } : { minHeight: '100%' }}
-    >
-      <micro-app
-        name={module.name}
-        url={module.url}
-        baseroute={`/app/${module.route}`}
-        iframe
-      />
-    </div>
+    <iframe
+      src={module.url}
+      title={module.display_name}
+      className="w-full border-0"
+      style={{ height: `${height}px` }}
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+    />
   )
 }
