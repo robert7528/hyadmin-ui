@@ -1,15 +1,32 @@
-import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
 import { Header } from '@/components/layout/header'
 import { Sidebar } from '@/components/layout/sidebar'
 import { AppBreadcrumb } from '@/components/layout/breadcrumb'
 import { useIdleTimeout } from '@/hooks/use-idle-timeout'
+import { useModules } from '@/contexts/module-context'
 import { Sheet, SheetContent } from '@hysp/ui-kit'
 
 export function ShellLayout() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+  const { pathname } = useLocation()
+  const { modules, selectedModule, selectModule } = useModules()
 
   useIdleTimeout(30)
+
+  // Auto-select module from URL after page refresh
+  useEffect(() => {
+    if (selectedModule || modules.length === 0) return
+
+    const match = pathname.match(/^\/app\/([^/]+)/)
+    if (!match) return
+
+    const route = match[1]
+    const mod = modules.find((m) => m.route === route && m.enabled)
+    if (mod) {
+      selectModule(mod)
+    }
+  }, [modules, selectedModule, pathname, selectModule])
 
   return (
     <div className="flex h-screen flex-col">
