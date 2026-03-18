@@ -14,8 +14,6 @@ export function AppContainer({ module }: AppContainerProps) {
     <WujieReact
       name={module.name}
       url={module.url}
-      sync={true}
-
       width="100%"
       height="100%"
     />
