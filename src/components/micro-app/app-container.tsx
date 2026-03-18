@@ -13,7 +13,7 @@ export function AppContainer({ module }: AppContainerProps) {
       name={module.name}
       url={module.url}
       sync={true}
-      degrade={true}
+
       width="100%"
       height="100%"
     />
