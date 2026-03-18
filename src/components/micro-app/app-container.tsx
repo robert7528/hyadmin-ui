@@ -26,7 +26,6 @@ export function AppContainer({ module }: AppContainerProps) {
       title={module.display_name}
       className="w-full border-0"
       style={{ height: `${height}px` }}
-      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
     />
   )
 }
