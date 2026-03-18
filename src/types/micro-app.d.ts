@@ -8,6 +8,10 @@ declare module 'react' {
           name?: string
           url?: string
           baseroute?: string
+          iframe?: boolean
+          inline?: boolean
+          disableSandbox?: boolean
+          destroy?: boolean
         },
         HTMLElement
       >
