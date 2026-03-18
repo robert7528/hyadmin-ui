@@ -13,7 +13,7 @@
     "next": "^15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "@micro-zoe/micro-app": "1.0.0-rc.29",
+    "wujie-react": "^1.0.29",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.468.0"
   },
