@@ -3,13 +3,14 @@ import type { Module } from '@/types/module'
 
 interface AppContainerProps {
   module: Module
+  url?: string
 }
 
-export function AppContainer({ module }: AppContainerProps) {
+export function AppContainer({ module, url }: AppContainerProps) {
   return (
     <WujieReact
       name={module.name}
-      url={module.url}
+      url={url || module.url}
       width="100%"
       height="100%"
     />

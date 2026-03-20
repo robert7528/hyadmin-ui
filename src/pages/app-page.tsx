@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation } from 'react-router-dom'
 import { useModules } from '@/contexts/module-context'
 import { useLocale } from '@/contexts/locale-context'
 import { AppContainer } from '@/components/micro-app/app-container'
@@ -8,6 +8,7 @@ export default function AppPage() {
   const { route } = useParams<{ route: string }>()
   const { modules } = useModules()
   const { t } = useLocale()
+  const location = useLocation()
 
   // modules still loading
   if (modules.length === 0) {
@@ -28,5 +29,13 @@ export default function AppPage() {
     )
   }
 
-  return <AppContainer key={mod.name} module={mod} />
+  // Extract sub-path after /app/{route} and append to sub-app URL
+  // e.g., /app/cert/list → subPath = /list
+  const prefix = `/app/${route}`
+  const subPath = location.pathname.startsWith(prefix)
+    ? location.pathname.slice(prefix.length)
+    : ''
+  const subAppUrl = subPath ? `${mod.url}${subPath}` : mod.url
+
+  return <AppContainer key={`${mod.name}-${subPath}`} module={mod} url={subAppUrl} />
 }
