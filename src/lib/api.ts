@@ -18,10 +18,10 @@ export function getToken(): string | null {
 
 export function setToken(token: string, tenantCode?: string): void {
   sessionStorage.setItem(TOKEN_KEY, token)
-  Cookies.set(TOKEN_KEY, token, { path: '/', sameSite: 'strict' })
+  Cookies.set(TOKEN_KEY, token, { path: '/', sameSite: 'strict', expires: 1 })
   if (tenantCode) {
     sessionStorage.setItem(TENANT_KEY, tenantCode)
-    Cookies.set(TENANT_KEY, tenantCode, { path: '/', sameSite: 'strict' })
+    Cookies.set(TENANT_KEY, tenantCode, { path: '/', sameSite: 'strict', expires: 1 })
   }
 }
 
