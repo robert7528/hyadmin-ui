@@ -104,8 +104,13 @@ export function Header({ onMenuClick }: HeaderProps) {
   const isAdmin = pathname.startsWith('/admin')
 
   const handleSelectModule = (mod: (typeof modules)[0]) => {
-    selectModule(mod).then(() => {
-      navigate(`/app/${mod.route}`)
+    selectModule(mod).then((feats) => {
+      const firstFeature = feats.find(f => f.enabled)
+      if (firstFeature) {
+        navigate(`/app/${mod.route}${firstFeature.path}`)
+      } else {
+        navigate(`/app/${mod.route}`)
+      }
     })
   }
 

@@ -8,7 +8,7 @@ interface ModuleContextValue {
   selectedModule: Module | null
   features: Feature[]
   loadModules: () => Promise<void>
-  selectModule: (module: Module) => Promise<void>
+  selectModule: (module: Module) => Promise<Feature[]>
   setModules: (modules: Module[]) => void
   setSelectedModule: (module: Module | null) => void
   setFeatures: (features: Feature[]) => void
@@ -19,7 +19,7 @@ const ModuleContext = createContext<ModuleContextValue>({
   selectedModule: null,
   features: [],
   loadModules: async () => {},
-  selectModule: async () => {},
+  selectModule: async () => [],
   setModules: () => {},
   setSelectedModule: () => {},
   setFeatures: () => {},
@@ -39,13 +39,16 @@ export function ModuleProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  const selectModule = useCallback(async (module: Module) => {
+  const selectModule = useCallback(async (module: Module): Promise<Feature[]> => {
     setSelectedModule(module)
     try {
       const data = await featuresApi.listByModule(module.id)
-      setFeatures(data.features ?? [])
+      const feats = data.features ?? []
+      setFeatures(feats)
+      return feats
     } catch {
       setFeatures([])
+      return []
     }
   }, [])
 
